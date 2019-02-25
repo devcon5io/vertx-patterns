@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>vertx-modular-router</module>
+        <module>vertx-async-cache</module>
     </modules>
     <packaging>pom</packaging>
 
