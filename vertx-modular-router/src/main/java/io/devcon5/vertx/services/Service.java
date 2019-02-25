@@ -3,7 +3,6 @@ package io.devcon5.vertx.services;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -28,8 +27,8 @@ public interface Service<T extends Service> {
    */
   static List<Future> mountAll(Router parentRouter, JsonObject config, AuthProvider authProvider) {
 
-    return StreamSupport.stream(ServiceLoader.load(Service.class).spliterator(), false)
-                        .map(svc -> svc.withConfig(config).withAuth(authProvider).mount(parentRouter))
+    return ServiceLoader.load(Service.class).stream()
+                        .map(svc -> svc.get().withConfig(config).withAuth(authProvider).mount(parentRouter))
                         .collect(Collectors.toList());
   }
 
