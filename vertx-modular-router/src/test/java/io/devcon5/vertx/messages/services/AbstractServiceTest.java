@@ -1,4 +1,4 @@
-package io.devcon5.vertx.services;
+package io.devcon5.vertx.messages.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

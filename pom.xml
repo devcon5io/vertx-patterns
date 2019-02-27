@@ -10,6 +10,7 @@
     <modules>
         <module>vertx-modular-router</module>
         <module>vertx-async-cache</module>
+        <module>vertx-messages</module>
     </modules>
     <packaging>pom</packaging>
 
