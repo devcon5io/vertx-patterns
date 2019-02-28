@@ -2,6 +2,7 @@ package io.devcon5.vertx.messages;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
@@ -13,7 +14,7 @@ import io.vertx.core.json.JsonObject;
  */
 class MessageEncoder {
 
-  public Object encode(final Object... args) throws IOException {
+  public Object encode(final Object... args)  {
     if(args.length == 1){
       Object obj = args[0];
       if(isNative(obj)){
@@ -25,6 +26,9 @@ class MessageEncoder {
       if(isStream(obj)){
         return encodeStream((InputStream)obj);
       }
+      if(obj instanceof Collection) {
+        return new JsonArray(Json.encodeToBuffer(obj));
+      }
       return new JsonObject(Json.encodeToBuffer(obj));
     }
     final JsonArray array = new JsonArray();
@@ -34,9 +38,13 @@ class MessageEncoder {
     return array;
   }
 
-  private Buffer encodeStream(final InputStream obj) throws IOException {
+  private Buffer encodeStream(final InputStream obj) {
 
-    return Buffer.buffer(obj.readAllBytes());
+    try {
+      return Buffer.buffer(obj.readAllBytes());
+    } catch (IOException e) {
+      throw new RuntimeException("Could not encode stream", e);
+    }
   }
 
   private boolean isBinary(final Object obj) {

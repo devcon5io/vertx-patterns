@@ -22,10 +22,12 @@ class MessageInvocationHandler implements InvocationHandler {
   private final Vertx vertx;
   private final MessageEncoder messageEncoder;
   private final MessageDecoder messageDecoder;
+  private final Class contract;
 
-  public MessageInvocationHandler(final Vertx vertx) {
+  public MessageInvocationHandler(final Vertx vertx, Class contract) {
 
     this.vertx = vertx;
+    this.contract = contract;
     this.messageEncoder = new MessageEncoder();
     this.messageDecoder = new MessageDecoder();
   }
@@ -36,7 +38,7 @@ class MessageInvocationHandler implements InvocationHandler {
     final String ebAddress;
     Address address = method.getAnnotation(Address.class);
     if (address == null) {
-      ebAddress = method.getName();
+      ebAddress = contract.getSimpleName() + "." + method.getName();
     } else {
       ebAddress = address.value();
     }

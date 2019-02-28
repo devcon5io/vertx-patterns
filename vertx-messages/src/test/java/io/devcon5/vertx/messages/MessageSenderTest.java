@@ -38,7 +38,7 @@ public class MessageSenderTest {
   }
 
   @Test
-  public void sendMessage_byMessageClient(TestContext ctx) throws Exception {
+  public void sendMessage_byDeclaredContract(TestContext ctx) throws Exception {
 
     Async done = ctx.async();
     ActorOne.Contract actorOne = Messages.of(ActorOne.class);
@@ -53,7 +53,7 @@ public class MessageSenderTest {
   }
 
   @Test
-  public void sendPojoMessage_byMessageClient(TestContext ctx) throws Exception {
+  public void sendPojoMessage_byDeclaredContract(TestContext ctx) throws Exception {
 
     Async done = ctx.async();
     ActorOne.Contract actorOne = Messages.of(ActorOne.class);
@@ -70,7 +70,7 @@ public class MessageSenderTest {
   }
 
   @Test
-  public void sendPojoMessage_byMessageClientContract(TestContext ctx) throws Exception {
+  public void sendPojoMessage_byContract(TestContext ctx) throws Exception {
 
     Async done = ctx.async();
     ActorOne.Contract actorOne = Messages.ofContract(ActorOne.Contract.class);
@@ -88,7 +88,7 @@ public class MessageSenderTest {
 
   //blocking APIs are not allowed when running on the eventloop
   @Test(expected = UnsupportedOperationException.class)
-  public void sendPojoMessage_byMessageClient_blocking(TestContext ctx) throws Exception {
+  public void sendPojoMessage_byDeclaredContract_blocking_onEventLoop(TestContext ctx) throws Exception {
 
     ActorOne.Contract actorOne = Messages.of(ActorOne.class);
 
