@@ -19,7 +19,7 @@ public class ActorTwo extends AbstractVerticle {
   @Override
   public void start(final Future<Void> startFuture) throws Exception {
 
-    Messages.consumedBy(this);
+    Messages.registerActor(this);
     super.start(startFuture);
   }
 

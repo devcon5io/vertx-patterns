@@ -10,6 +10,9 @@ import io.vertx.core.json.JsonObject;
  */
 class MessageDecoder {
 
+  final static MessageDecoder INSTANCE = new MessageDecoder();
+
+
   public Object decode(Object obj, final Class<?> targetType){
     if(obj == null || targetType == obj.getClass()) {
       return obj;

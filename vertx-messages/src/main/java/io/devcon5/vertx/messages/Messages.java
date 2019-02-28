@@ -1,5 +1,6 @@
 package io.devcon5.vertx.messages;
 
+import static io.devcon5.vertx.messages.MessageMethodHandler.isNativeMethodHandler;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.lang.reflect.Method;
@@ -12,12 +13,10 @@ import java.util.function.Consumer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonArray;
 import org.slf4j.Logger;
 
 /**
@@ -38,6 +37,20 @@ public class Messages {
   public static <T> Future<Message<T>> send(final String address, Object msg) {
 
     return send(Vertx.currentContext().owner(), address, msg);
+  }
+
+  public static <T> void reply(final Message<T> msg, final AsyncResult<?> res) {
+
+    if(res.succeeded()) {
+      Object result = res.result();
+      if(result instanceof AsyncResult){
+        reply(msg, (AsyncResult)result);
+      } else {
+        msg.reply(MessageEncoder.INSTANCE.encode(res.result()));
+      }
+    } else {
+      msg.fail(500, res.cause().getMessage());
+    }
   }
 
   public static <T> T ofContract(Vertx vertx, Class<T> contract) {
@@ -69,11 +82,10 @@ public class Messages {
     return ofContract(vertx, (Class<T>) interaction.value());
   }
 
-  public static <T extends Verticle> void consumedBy(final T actor) {
+  public static <T extends Verticle> void registerActor(final T actor) {
 
     Arrays.stream(actor.getClass().getDeclaredMethods())
           .filter(Messages::isReceiverMethod)
-          .peek(m -> LOG.debug("registering {}", m))
           .forEach(registerAddress(actor));
 
   }
@@ -123,18 +135,13 @@ public class Messages {
   }
 
   private static boolean isSuitable(final Method method) {
-
     if(method.getReturnType() == Void.class) {
       return isNativeMethodHandler(method);
     }
-
     return method.getParameterTypes().length > 0;
   }
 
-  private static boolean isNativeMethodHandler(final Method method) {
-    final Class[] params = method.getParameterTypes();
-    return params.length == 1 && Message.class == params[0];
-  }
+
 
   private static <T extends Verticle> Consumer<Method> registerAddress(final T actor) {
 
@@ -143,7 +150,8 @@ public class Messages {
       final String addr = Optional.ofNullable(method.getAnnotation(Address.class))
                                   .map(Address::value)
                                   .orElseGet(() -> getImplicitAddress(actor, method));
-      eb.consumer(addr, messageHandlerFor(actor, method));
+      LOG.debug("registering {} at address {}", method, addr);
+      eb.consumer(addr, new MessageMethodHandler<>(actor, method));
     };
   }
 
@@ -157,69 +165,6 @@ public class Messages {
     return actor.getClass().getSimpleName() + "." + method.getName();
   }
 
-  private static <A extends Verticle, T> Handler<Message<T>> messageHandlerFor(final A actor, final Method method) {
 
 
-    final MessageDecoder dec = new MessageDecoder();
-    return msg -> {
-
-      if (isNativeMethodHandler(method)) {
-        invoke(actor, method, msg).setHandler(res -> {
-          if(res.failed()){
-            msg.fail(500, res.cause().getMessage());
-          }
-        });
-      } else {
-        final Class[] paramTypes = method.getParameterTypes();
-        final Object body = msg.body();
-        if(paramTypes.length == 1){
-          invoke(actor, method,dec.decode(body, paramTypes[0]))
-              .setHandler(res -> reply(msg, res));
-        } else if(msg.body() instanceof JsonArray && paramTypes.length <= ((JsonArray)body).size()){
-          final JsonArray bodyArr = (JsonArray)body;
-          final Object[] args = new Object[paramTypes.length];
-          for(int i =0, len = paramTypes.length; i < len; i++){
-            args[i] = dec.decode(bodyArr.getValue(i), paramTypes[i]);
-          }
-          invoke(actor, method,args).setHandler(res -> reply(msg, res));
-        } else {
-          msg.fail(501, "Could not find matching method for msg body " + msg.body());
-        }
-      }
-    };
-  }
-
-  private static <T> void reply(final Message<T> msg, final AsyncResult<?> res) {
-    final MessageEncoder enc = new MessageEncoder();
-    if(res.succeeded()) {
-      Object result = res.result();
-      if(result instanceof AsyncResult){
-        reply(msg, (AsyncResult)result);
-      } else {
-        msg.reply(enc.encode(res.result()));
-      }
-    } else {
-      msg.fail(500, res.cause().getMessage());
-    }
-  }
-
-  private static <A extends Verticle> Future<?> invoke(final A actor, final Method method, final Object... arg) {
-
-    Future result = Future.future();
-    try {
-      openMethod(method);
-      result.complete(method.invoke(actor, arg));
-    } catch (Exception e) {
-      result.fail(e);
-    }
-    return result;
-  }
-
-  private static void openMethod(final Method method) {
-
-    if (!Modifier.isPublic(method.getModifiers())) {
-      //Note: this option requires the target modules to be opened (open module ...)
-      method.setAccessible(true);
-    }
-  }
 }
