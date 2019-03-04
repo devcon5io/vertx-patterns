@@ -13,6 +13,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ch.devcon5.vertx</groupId>
+            <artifactId>vertx-message-encoder</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <scope>test</scope>

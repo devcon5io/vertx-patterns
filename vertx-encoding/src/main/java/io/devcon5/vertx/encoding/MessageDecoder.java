@@ -1,4 +1,4 @@
-package io.devcon5.vertx.messages;
+package io.devcon5.vertx.encoding;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject;
 /**
  *
  */
-class MessageDecoder {
+public class MessageDecoder {
 
   final static MessageDecoder INSTANCE = new MessageDecoder();
 

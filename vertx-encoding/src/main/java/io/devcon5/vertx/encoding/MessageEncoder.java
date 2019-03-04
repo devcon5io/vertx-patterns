@@ -1,4 +1,4 @@
-package io.devcon5.vertx.messages;
+package io.devcon5.vertx.encoding;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import io.vertx.core.json.JsonObject;
 /**
  *
  */
-class MessageEncoder {
+public class MessageEncoder {
 
   final static MessageEncoder INSTANCE = new MessageEncoder();
 

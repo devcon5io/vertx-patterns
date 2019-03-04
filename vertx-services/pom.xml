@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vertx-modular-router</artifactId>
+    <artifactId>vertx-services</artifactId>
 
     <packaging>jar</packaging>
 
