@@ -14,7 +14,7 @@ import io.vertx.core.json.JsonObject;
  */
 public class MessageEncoder {
 
-  final static MessageEncoder INSTANCE = new MessageEncoder();
+  public final static MessageEncoder INSTANCE = new MessageEncoder();
 
   public Object encode(final Object... args)  {
     if(args.length == 1){

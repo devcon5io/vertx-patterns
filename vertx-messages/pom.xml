@@ -14,8 +14,8 @@
     <dependencies>
         <dependency>
             <groupId>ch.devcon5.vertx</groupId>
-            <artifactId>vertx-message-encoder</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>vertx-encoding</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -42,6 +42,12 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.devcon5.vertx</groupId>
+            <artifactId>vertx-encoding</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

@@ -5,6 +5,8 @@ import static io.devcon5.vertx.messages.Messages.reply;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import io.devcon5.vertx.encoding.MessageDecoder;
+import io.devcon5.vertx.encoding.MessageEncoder;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Verticle;

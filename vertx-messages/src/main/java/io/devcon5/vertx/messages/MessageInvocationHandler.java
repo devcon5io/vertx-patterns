@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import io.devcon5.vertx.encoding.MessageDecoder;
+import io.devcon5.vertx.encoding.MessageEncoder;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
