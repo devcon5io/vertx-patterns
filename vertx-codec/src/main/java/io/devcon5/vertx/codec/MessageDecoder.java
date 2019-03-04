@@ -1,4 +1,4 @@
-package io.devcon5.vertx.encoding;
+package io.devcon5.vertx.codec;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;

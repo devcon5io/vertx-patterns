@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>ch.devcon5.vertx</groupId>
-            <artifactId>vertx-encoding</artifactId>
+            <artifactId>vertx-codec</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

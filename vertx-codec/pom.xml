@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vertx-encoding</artifactId>
+    <artifactId>vertx-codec</artifactId>
     <description>Provides encoding/decoding of Java types to Vert.x eventbus compatible messages.</description>
 
     <dependencies>

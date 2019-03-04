@@ -1,4 +1,4 @@
-package io.devcon5.vertx.encoding;
+package io.devcon5.vertx.codec;
 
 import java.io.IOException;
 import java.io.InputStream;
