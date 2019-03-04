@@ -1,4 +1,4 @@
-package io.devcon5.vertx.messages.services;
+package io.devcon5.vertx.services;
 
 import static io.vertx.core.logging.LoggerFactory.getLogger;
 
