@@ -12,5 +12,12 @@
     <artifactId>vertx-caching</artifactId>
     <description>An async cache implementation for vert.x</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+        </dependency>
+    </dependencies>
+
 
 </project>
