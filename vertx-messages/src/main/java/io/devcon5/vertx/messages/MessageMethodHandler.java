@@ -1,17 +1,12 @@
 package io.devcon5.vertx.messages;
 
-import static io.devcon5.vertx.messages.Messages.reply;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import io.devcon5.vertx.codec.MessageDecoder;
-import io.devcon5.vertx.codec.MessageEncoder;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonArray;
 
 /**
  *
@@ -20,41 +15,33 @@ class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>
 
   private final A actor;
   private final Method method;
-  private final MessageEncoder enc;
-  private final MessageDecoder dec;
+  private final boolean isNative;
 
   public MessageMethodHandler(A actor, Method m){
     this.actor = actor;
     this.method = m;
-    this.dec = new MessageDecoder();
-    this.enc = new MessageEncoder();
+    this.isNative = isNativeMethodHandler(m);
   }
 
   @Override
   public void handle(final Message<T> msg) {
-    if (isNativeMethodHandler(method)) {
-      invoke(actor, method, msg).setHandler(res -> {
-        if(res.failed()){
-          msg.fail(500, res.cause().getMessage());
-        }
-      });
-    } else {
-      final Class[] paramTypes = method.getParameterTypes();
-      final Object body = msg.body();
-      if(paramTypes.length == 1){
-        invoke(actor, method,dec.decode(body, paramTypes[0]))
-            .setHandler(res -> reply(msg, res));
-      } else if(msg.body() instanceof JsonArray && paramTypes.length <= ((JsonArray)body).size()){
-        final JsonArray bodyArr = (JsonArray)body;
-        final Object[] args = new Object[paramTypes.length];
-        for(int i =0, len = paramTypes.length; i < len; i++){
-          args[i] = dec.decode(bodyArr.getValue(i), paramTypes[i]);
-        }
-        invoke(actor, method,args).setHandler(res -> reply(msg, res));
-      } else {
-        msg.fail(501, "Could not find matching method for msg body " + msg.body());
+    invoke(actor, method, extractMethodArgs(msg)).setHandler(res -> {
+      if(res.failed()){
+        msg.fail(500, res.cause().getMessage());
       }
+      //TODO add reply
+    });
+  }
+
+  private Object[] extractMethodArgs(final Message<T> msg) {
+
+    final Object[] args;
+    if (isNative) {
+      args = new Object[]{msg};
+    } else {
+      args = (Object[])msg.body();
     }
+    return args;
   }
 
   private <A extends Verticle> Future<?> invoke(final A actor, final Method method, final Object... arg) {

@@ -1,37 +1,30 @@
 package io.devcon5.vertx.messages;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static io.devcon5.vertx.messages.GenericTypeArrayCodec.codecNameFor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import io.devcon5.vertx.codec.MessageDecoder;
-import io.devcon5.vertx.codec.MessageEncoder;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
-import org.slf4j.Logger;
 
 /**
  *
  */
 class MessageInvocationHandler implements InvocationHandler {
 
-  private static final Logger LOG = getLogger(MessageInvocationHandler.class);
-
-  private final Vertx vertx;
-  private final MessageEncoder messageEncoder;
-  private final MessageDecoder messageDecoder;
   private final Class contract;
+  private final EventBus eb;
 
   public MessageInvocationHandler(final Vertx vertx, Class contract) {
 
-    this.vertx = vertx;
+    this.eb = vertx.eventBus();
     this.contract = contract;
-    this.messageEncoder = new MessageEncoder();
-    this.messageDecoder = new MessageDecoder();
   }
 
   @Override
@@ -44,25 +37,42 @@ class MessageInvocationHandler implements InvocationHandler {
     } else {
       ebAddress = address.value();
     }
-    final Class returnType = getReturnType(method);
-    if (returnType == Void.class) {
-      vertx.eventBus().send(ebAddress, messageEncoder.encode(args));
-      return null;
-    } else {
-      final Future result = Future.future();
-      vertx.eventBus().send(ebAddress, messageEncoder.encode(args), result.completer());
+    //TODO add support for security
 
-      if (isNonBlocking(method)) {
-        return result.map(msgObj -> messageDecoder.decode(((Message) msgObj).body(), returnType));
-      } else {
+    final DeliveryOptions opts = new DeliveryOptions();
+    final Object msg;
+    //shortcut for native message support
+    final boolean isNative = args.length == 1 && GenericTypeCodec.isSimpleType(args[0].getClass());
+
+    if(isNative){
+      msg = args[0];
+    } else {
+      final String codecName = codecNameFor(method.getGenericParameterTypes());
+      opts.setCodecName(codecName);
+      msg = args;
+      //TODO ensure codecs are only registered once
+      eb.registerCodec(new GenericTypeArrayCodec(method.getGenericParameterTypes()));
+    }
+
+    final Future result = Future.future();
+
+    eb.send(ebAddress, msg, opts, result.completer());
+
+    if (getReturnType(method) == Void.class) {
+      return null;
+    } else if (isNonBlocking(method)) {
+        if(getReturnType(method) == Message.class){
+          return result;
+        } else {
+          return result.map(oMsg -> ((Message)oMsg).body());
+        }
+    } else {
         //TODO throw exception only when running on eventloop thread
         throw new UnsupportedOperationException("Blocking methods are not supported. All methods must have a future "
                                                     + "as return type, but "
                                                     + method
                                                     + " returns "
                                                     + method.getReturnType());
-      }
-
     }
   }
 

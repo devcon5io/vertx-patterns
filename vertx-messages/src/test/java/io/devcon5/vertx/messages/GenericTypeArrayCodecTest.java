@@ -17,15 +17,15 @@ import org.junit.Test;
 /**
  *
  */
-public class MethodArgsCodecTest {
+public class GenericTypeArrayCodecTest {
 
   @Test
   public void codecNameFor() throws NoSuchMethodException {
 
     Method method = TestContract.class.getMethod("testMethod", String.class, Integer.class, Boolean.class);
-    String codecName = MethodArgsCodec.codecNameFor(method);
+    String codecName = GenericTypeArrayCodec.codecNameFor(method.getGenericParameterTypes());
 
-    final String expected = "io.devcon5.vertx.messages.MethodArgsCodecTest$TestContract"
+    final String expected = "io.devcon5.vertx.messages.GenericTypeArrayCodecTest$TestContract"
         + "::testMethod("
         + "java.lang.String,"
         + "java.lang.Integer,"
@@ -36,7 +36,7 @@ public class MethodArgsCodecTest {
   @Test
   public void encodeToWire_and_decodeFromWire_pojoArg() throws Exception {
 
-    MethodArgsCodec codec = new MethodArgsCodec(TestContract.class.getMethod("testMethod", Pojo.class));
+    GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", Pojo.class).getGenericParameterTypes());
 
     Pojo pojo = new Pojo();
     pojo.setValue("test");
@@ -51,7 +51,7 @@ public class MethodArgsCodecTest {
   @Test
   public void encodeToWire_and_decodeFromWire_pojoListArg() throws Exception {
 
-    MethodArgsCodec codec = new MethodArgsCodec(TestContract.class.getMethod("testMethod", List.class));
+    GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", List.class).getGenericParameterTypes());
 
     List pojo = Arrays.asList(new Pojo().withValue("test1"), new Pojo().withValue("test2"));
 
@@ -64,7 +64,7 @@ public class MethodArgsCodecTest {
   @Test
   public void encodeToWire_and_decodeFromWire_pojoSetArg() throws Exception {
 
-    MethodArgsCodec codec = new MethodArgsCodec(TestContract.class.getMethod("testMethod", Set.class));
+    GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", Set.class).getGenericParameterTypes());
 
     Set<Pojo> pojos = new HashSet();
     pojos.add(new Pojo().withValue("test1"));
@@ -79,7 +79,7 @@ public class MethodArgsCodecTest {
   @Test
   public void encodeToWire_and_decodeFromWire_pojoMapArg() throws Exception {
 
-    MethodArgsCodec codec = new MethodArgsCodec(TestContract.class.getMethod("testMethod", Map.class));
+    GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", Map.class).getGenericParameterTypes());
 
 
     Map<String, Pojo> pojos = new HashMap<>();
@@ -92,7 +92,7 @@ public class MethodArgsCodecTest {
     assertEquals(pojos, recv[0]);
   }
 
-  private Object[] transcode(final MethodArgsCodec codec, final Object... input) {
+  private Object[] transcode(final GenericTypeArrayCodec codec, final Object... input) {
 
     Buffer buffer = Buffer.buffer();
     codec.encodeToWire(buffer, input);
