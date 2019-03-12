@@ -1,7 +1,7 @@
-package io.devcon5.vertx.messages;
+package io.devcon5.vertx.actors;
 
 import static io.devcon5.vertx.codec.GenericTypeDecoding.isSimpleType;
-import static io.devcon5.vertx.messages.MessageMethodHandler.isNativeMethodHandler;
+import static io.devcon5.vertx.actors.MessageMethodHandler.isNativeMethodHandler;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.lang.reflect.Method;
@@ -130,7 +130,7 @@ public class Messages {
   /**
    * Registers an actor {@link io.vertx.core.Verticle} and it's methods on the event bus so that
    * messages can be sent directly to the actor's method without having to explicitly define it's addresses and
-   * handlers. Only public methods or methods annoted with {@link io.devcon5.vertx.messages.Address} are
+   * handlers. Only public methods or methods annoted with {@link io.devcon5.vertx.actors.Address} are
    * registered. For each registerd method a codec is registered on the event bus that decodes messages to match
    * the signature of the method so that native objects (Pojos) can be transmitted.
    *

@@ -1,4 +1,4 @@
-package io.devcon5.vertx.messages;
+package io.devcon5.vertx.actors;
 
 import static io.devcon5.vertx.codec.GenericTypeArrayCodec.codecNameFor;
 
