@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vertx-messages</artifactId>
+    <artifactId>vertx-actors</artifactId>
 
     <dependencies>
         <dependency>

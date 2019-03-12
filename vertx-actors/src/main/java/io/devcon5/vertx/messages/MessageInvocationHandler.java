@@ -1,6 +1,6 @@
 package io.devcon5.vertx.messages;
 
-import static io.devcon5.vertx.messages.GenericTypeArrayCodec.codecNameFor;
+import static io.devcon5.vertx.codec.GenericTypeArrayCodec.codecNameFor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -30,35 +30,17 @@ class MessageInvocationHandler implements InvocationHandler {
   @Override
   public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
-    final String ebAddress;
-    Address address = method.getAnnotation(Address.class);
-    if (address == null) {
-      ebAddress = contract.getSimpleName() + "." + method.getName();
-    } else {
-      ebAddress = address.value();
-    }
+    final String ebAddress = Messages.getImplicitAddress(contract, method);
     //TODO add support for security
 
     final DeliveryOptions opts = new DeliveryOptions();
-    final Object msg;
-    //shortcut for native message support
-    final boolean isNative = args.length == 1 && GenericTypeCodec.isSimpleType(args[0].getClass());
 
-    if(isNative){
-      msg = args[0];
-    } else {
-      final String codecName = codecNameFor(method.getGenericParameterTypes());
-      opts.setCodecName(codecName);
-      msg = args;
-      //TODO ensure codecs are only registered once
-      eb.registerCodec(new GenericTypeArrayCodec(method.getGenericParameterTypes()));
-    }
+    opts.setCodecName(codecNameFor(method.getGenericParameterTypes()));
 
     final Future result = Future.future();
-
-    eb.send(ebAddress, msg, opts, result.completer());
-
+    eb.send(ebAddress, args, opts, result.completer());
     if (getReturnType(method) == Void.class) {
+      //check if really needed
       return null;
     } else if (isNonBlocking(method)) {
         if(getReturnType(method) == Message.class){

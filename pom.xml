@@ -10,7 +10,7 @@
     <modules>
         <module>vertx-services</module>
         <module>vertx-codec</module>
-        <module>vertx-messages</module>
+        <module>vertx-actors</module>
         <module>vertx-caching</module>
     </modules>
     <packaging>pom</packaging>
