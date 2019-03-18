@@ -2,7 +2,7 @@ package io.devcon5.vertx.codec;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,12 +20,22 @@ import org.junit.Test;
 public class GenericTypeArrayCodecTest {
 
   @Test
-  public void codecNameFor() throws NoSuchMethodException {
+  public void codecNameFor_primitiveObjectArray() throws NoSuchMethodException {
 
-    Method method = TestContract.class.getMethod("testMethod", String.class, Integer.class, Boolean.class);
-    String codecName = GenericTypeArrayCodec.codecNameFor(method.getGenericParameterTypes());
+    String codecName = GenericTypeArrayCodec.codecNameFor(new Class[]{String.class, Integer.class, Boolean.class});
+    final String expected = "[java.lang.String, java.lang.Integer, java.lang.Boolean]";
+    assertEquals(expected,codecName);
+  }
 
-    final String expected = "[java.lang.String,java.lang.Integer,java.lang.Boolean]";
+
+  @Test
+  public void codecNameFor_genericCollectionsArray() throws NoSuchMethodException {
+
+    String codecName = GenericTypeArrayCodec.codecNameFor(new Type[]{ ComplexTypes.LIST_OF_POJO_TYPE, ComplexTypes.MAP_OF_POJO_TYPE,
+                                                                      ComplexTypes.SET_OF_POJO_TYPE});
+    final String expected = "[java.util.List<io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>, "
+        + "java.util.Map<java.lang.String, io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>, "
+        + "java.util.Set<io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>]";
     assertEquals(expected,codecName);
   }
 
@@ -45,7 +55,7 @@ public class GenericTypeArrayCodecTest {
   }
 
   @Test
-  public void encodeToWire_and_decodeFromWire_pojoListArg() throws Exception {
+  public void encodeToWire_and_decodeFromWire_listOfPojosArg() throws Exception {
 
     GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", List.class).getGenericParameterTypes());
 
@@ -58,7 +68,7 @@ public class GenericTypeArrayCodecTest {
   }
 
   @Test
-  public void encodeToWire_and_decodeFromWire_pojoSetArg() throws Exception {
+  public void encodeToWire_and_decodeFromWire_setOfPojosArg() throws Exception {
 
     GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", Set.class).getGenericParameterTypes());
 
@@ -73,7 +83,7 @@ public class GenericTypeArrayCodecTest {
   }
 
   @Test
-  public void encodeToWire_and_decodeFromWire_pojoMapArg() throws Exception {
+  public void encodeToWire_and_decodeFromWire_mapOfPojosArg() throws Exception {
 
     GenericTypeArrayCodec codec = new GenericTypeArrayCodec(TestContract.class.getMethod("testMethod", Map.class).getGenericParameterTypes());
 
@@ -88,12 +98,31 @@ public class GenericTypeArrayCodecTest {
     assertEquals(pojos, recv[0]);
   }
 
+
+  @Test
+  public void name_pojoType() {
+    GenericTypeArrayCodec codec = new GenericTypeArrayCodec(new Class[]{Pojo.class});
+
+    assertEquals("[io.devcon5.vertx.codec.GenericTypeArrayCodecTest$Pojo]", codec.name());
+  }
+
+  @Test
+  public void systemCodecID() {
+
+    GenericTypeArrayCodec codec = new GenericTypeArrayCodec(new Class[]{Pojo.class});
+
+    assertEquals(-1, codec.systemCodecID());
+
+  }
+
   private Object[] transcode(final GenericTypeArrayCodec codec, final Object... input) {
 
     Buffer buffer = Buffer.buffer();
     codec.encodeToWire(buffer, input);
     return codec.decodeFromWire(0, buffer);
   }
+
+
 
   public interface TestContract {
 
@@ -141,5 +170,26 @@ public class GenericTypeArrayCodecTest {
 
       return Objects.hash(value);
     }
+  }
+
+  public static class ComplexTypes {
+
+    public List<GenericTypeCodecTest.Pojo> listOfPojos;
+    public Map<String, GenericTypeCodecTest.Pojo> mapOfPojos;
+    public Set<GenericTypeCodecTest.Pojo> setOfPojos;
+    public GenericTypeCodecTest.Pojo[] arrayOfPojos;
+
+    public static Type getType(String fieldName){
+
+      try {
+        return ComplexTypes.class.getField(fieldName).getGenericType();
+      } catch (NoSuchFieldException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    public static final Type LIST_OF_POJO_TYPE = getType("listOfPojos");
+    public static final Type MAP_OF_POJO_TYPE = getType("mapOfPojos");
+    public static final Type SET_OF_POJO_TYPE = getType("setOfPojos");
+    public static final Type ARRAY_OF_POJO_TYPE = getType("arrayOfPojos");
   }
 }

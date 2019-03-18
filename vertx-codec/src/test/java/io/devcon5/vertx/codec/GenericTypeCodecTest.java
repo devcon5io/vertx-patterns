@@ -25,36 +25,36 @@ public class GenericTypeCodecTest {
   }
 
   @Test
-  public void name_genericListType() throws Exception {
+  public void codecNameFor_genericListType() throws Exception {
 
-    Type type = ListTypes.class.getField("listOfPojos").getGenericType();
+    Type type = ComplexTypes.LIST_OF_POJO_TYPE;
 
     assertEquals("java.util.List<io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>",
                  GenericTypeCodec.codecNameFor(type));
   }
 
   @Test
-  public void name_genericMapType() throws Exception {
+  public void codecNameFor_genericMapType() throws Exception {
 
-    Type type = ListTypes.class.getField("mapOfPojos").getGenericType();
+    Type type = ComplexTypes.MAP_OF_POJO_TYPE;
 
     assertEquals("java.util.Map<java.lang.String, io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>",
                  GenericTypeCodec.codecNameFor(type));
   }
 
   @Test
-  public void name_genericSetType() throws Exception {
+  public void codecNameFor_genericSetType() throws Exception {
 
-    Type type = ListTypes.class.getField("setOfPojos").getGenericType();
+    Type type = ComplexTypes.SET_OF_POJO_TYPE;
 
     assertEquals("java.util.Set<io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>",
                  GenericTypeCodec.codecNameFor(type));
   }
 
   @Test
-  public void name_arrayType() throws Exception {
+  public void codecNameFor_arrayType() throws Exception {
 
-    Type type = ListTypes.class.getField("arrayOfPojos").getGenericType();
+    Type type = ComplexTypes.ARRAY_OF_POJO_TYPE;
 
     assertEquals("io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo[]", GenericTypeCodec.codecNameFor(type));
   }
@@ -91,6 +91,52 @@ public class GenericTypeCodecTest {
   }
 
   @Test
+  public void encodeToWire_and_decodeFromWire_Pojo() throws Exception{
+
+    GenericTypeCodec codec = new GenericTypeCodec(Pojo.class);
+    Pojo pojo = new Pojo().withName("bob");
+
+    Pojo actual = transcode(codec, pojo);
+
+    assertEquals(pojo, actual);
+  }
+
+  @Test
+  public void encodeToWire_and_decodeFromWire_ListOfPojos() throws Exception{
+
+    GenericTypeCodec codec = new GenericTypeCodec(ComplexTypes.LIST_OF_POJO_TYPE);
+    List<Pojo> pojos = List.of(new Pojo().withName("bob"), new Pojo().withName("alice"));
+
+
+    List<Pojo> actual = transcode(codec, pojos);
+
+    assertEquals(pojos, actual);
+  }
+
+  @Test
+  public void encodeToWire_and_decodeFromWire_SetOfPojos() throws Exception{
+
+    GenericTypeCodec codec = new GenericTypeCodec(ComplexTypes.SET_OF_POJO_TYPE);
+    Set<Pojo> pojos = Set.of(new Pojo().withName("bob"), new Pojo().withName("alice"));
+
+    Set<Pojo> actual = transcode(codec, pojos);
+
+    assertEquals(pojos, actual);
+  }
+
+  @Test
+  public void encodeToWire_and_decodeFromWire_MapOfPojos() throws Exception{
+
+    GenericTypeCodec codec = new GenericTypeCodec(ComplexTypes.MAP_OF_POJO_TYPE);
+    Map<String, Pojo> pojos = Map.of("bob", new Pojo().withName("bob"),
+                                     "alice", new Pojo().withName("alice"));
+
+    Map<String, Pojo> actual = transcode(codec, pojos);
+
+    assertEquals(pojos, actual);
+  }
+
+  @Test
   public void transform() {
 
     Pojo type = new Pojo();
@@ -117,6 +163,13 @@ public class GenericTypeCodecTest {
 
     assertEquals(-1, codec.systemCodecID());
 
+  }
+
+  private <T> T transcode(final GenericTypeCodec codec, final T input) {
+
+    Buffer buffer = Buffer.buffer();
+    codec.encodeToWire(buffer, input);
+    return (T)codec.decodeFromWire(0, buffer);
   }
 
   public static class Pojo {
@@ -158,12 +211,24 @@ public class GenericTypeCodecTest {
     }
   }
 
-  public static class ListTypes {
+  public static class ComplexTypes {
 
     public List<Pojo> listOfPojos;
     public Map<String, Pojo> mapOfPojos;
     public Set<Pojo> setOfPojos;
     public Pojo[] arrayOfPojos;
 
+    public static Type getType(String fieldName){
+
+      try {
+        return ComplexTypes.class.getField(fieldName).getGenericType();
+      } catch (NoSuchFieldException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    public static final Type LIST_OF_POJO_TYPE = getType("listOfPojos");
+    public static final Type MAP_OF_POJO_TYPE = getType("mapOfPojos");
+    public static final Type SET_OF_POJO_TYPE = getType("setOfPojos");
+    public static final Type ARRAY_OF_POJO_TYPE = getType("arrayOfPojos");
   }
 }

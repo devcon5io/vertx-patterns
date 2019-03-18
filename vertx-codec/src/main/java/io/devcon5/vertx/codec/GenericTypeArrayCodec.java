@@ -2,7 +2,6 @@ package io.devcon5.vertx.codec;
 
 import static io.devcon5.vertx.codec.GenericTypeDecoding.decode;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import io.vertx.core.buffer.Buffer;
@@ -43,13 +42,10 @@ public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
     buf.append('[');
     for (int i = 0, len = types.length; i < len; i++) {
       final Type t = types[i];
-      if(t instanceof ParameterizedType){
-        buf.append(codecNameFor(((ParameterizedType)t).getActualTypeArguments()));
-      } else {
-        buf.append(t.getTypeName());
-      }
+      buf.append(t.getTypeName());
+
       if (i < len - 1) {
-        buf.append(',');
+        buf.append(", ");
       }
     }
     buf.append(']');
