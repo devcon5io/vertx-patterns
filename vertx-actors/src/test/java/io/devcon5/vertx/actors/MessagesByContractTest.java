@@ -1,6 +1,10 @@
 package io.devcon5.vertx.actors;
 
+import io.devcon5.vertx.actors.model.Greeting;
+import io.devcon5.vertx.actors.model.User;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
@@ -15,6 +19,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(VertxUnitRunner.class)
 public class MessagesByContractTest {
+
     @Rule
     public RunTestOnContext context = new RunTestOnContext();
 
@@ -26,18 +31,27 @@ public class MessagesByContractTest {
 
   @Test
   public void testSimpleMessage(TestContext ctx) throws Exception {
-    Contract actor = Messages.ofContract(Contract.class);
-    Async done = ctx.async();
 
+      Contract actor = Actors.withContract(Contract.class);
 
-    actor.hello("Bob").setHandler(reply -> {
-      ctx.assertTrue(reply.succeeded());
-      ctx.assertEquals("Hello Bob", reply.result());
-      done.complete();
-    });
+    actor.hello("Bob").setHandler(assertResult("Hello Bob", ctx));
 
   }
 
+
+
+  private <T> Handler<AsyncResult<T>> assertResult(T expected, final TestContext ctx) {
+    Async done = ctx.async();
+    return reply -> {
+      ctx.assertTrue(reply.succeeded());
+      ctx.assertEquals(expected, reply.result());
+      done.complete();
+    };
+  }
+
+  /**
+   * An example contract
+   */
   public interface Contract {
 
     Future<String> hello(final String bob);
@@ -48,6 +62,9 @@ public class MessagesByContractTest {
     Greeting helloBlocking(User bob);
   }
 
+  /**
+   * An actor that fulfills a contract
+   */
   public static class Actor extends AbstractActor implements Contract {
 
     @Override

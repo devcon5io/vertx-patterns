@@ -30,7 +30,7 @@ class MessageInvocationHandler implements InvocationHandler {
   @Override
   public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
-    final String ebAddress = Messages.getImplicitAddress(contract, method);
+    final String ebAddress = Actors.getImplicitAddress(method);
     //TODO add support for security
 
     final DeliveryOptions opts = new DeliveryOptions();

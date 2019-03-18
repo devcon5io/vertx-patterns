@@ -11,12 +11,16 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 
 /**
- *
+ * A codec for arrays of generic types. This includes raw types (such as .class) and generic types (i.e. List&lt;
+ * Pojo&gt;). This can be used for encoding arrays of mixed types, such as in method signatures. To encode
+ * arrays of a single type (i.e. Pojo[]), use the {@link io.devcon5.vertx.codec.GenericTypeCodec}
  */
 public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
 
   private final String name;
   private final Type[] types;
+
+  //TODO add factory for flyweigth object creation
 
   public GenericTypeArrayCodec(Type[] types) {
     this.types = types;

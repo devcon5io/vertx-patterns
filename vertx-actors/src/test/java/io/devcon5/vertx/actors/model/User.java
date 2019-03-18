@@ -1,4 +1,4 @@
-package io.devcon5.vertx.actors;
+package io.devcon5.vertx.actors.model;
 
 /**
  *

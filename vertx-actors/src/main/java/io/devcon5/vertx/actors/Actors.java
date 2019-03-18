@@ -1,11 +1,10 @@
 package io.devcon5.vertx.actors;
 
-import static io.devcon5.vertx.codec.GenericTypeDecoding.isSimpleType;
 import static io.devcon5.vertx.actors.MessageMethodHandler.isNativeMethodHandler;
+import static io.devcon5.vertx.codec.GenericTypeDecoding.isSimpleType;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import java.util.function.Consumer;
 
 import io.devcon5.vertx.codec.GenericTypeArrayCodec;
 import io.devcon5.vertx.codec.GenericTypeCodec;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Verticle;
@@ -26,9 +24,9 @@ import org.slf4j.Logger;
 /**
  *
  */
-public class Messages {
+public class Actors {
 
-  private static final Logger LOG = getLogger(Messages.class);
+  private static final Logger LOG = getLogger(Actors.class);
 
   /**
    * Sends a message to a vert.x event bus address. This is a convenience method for sending a message
@@ -95,7 +93,7 @@ public class Messages {
     return response;
   }
 
-  public static <T> T ofContract(Vertx vertx, Class<T> contract) {
+  public static <T> T withContract(Vertx vertx, Class<T> contract) {
 
     if (!contract.isInterface()) {
       throw new IllegalArgumentException("Contract " + contract.getName() + " is no interface");
@@ -105,9 +103,9 @@ public class Messages {
                                       new MessageInvocationHandler(vertx, contract));
   }
 
-  public static <T> T ofContract(Class<T> contract) {
+  public static <T> T withContract(Class<T> contract) {
 
-    return ofContract(Vertx.currentContext().owner(), contract);
+    return withContract(Vertx.currentContext().owner(), contract);
   }
 
   public static <T, V extends Verticle> T of(final Class<V> actorClass) {
@@ -122,7 +120,7 @@ public class Messages {
       if (Verticle.class.isAssignableFrom(iface)) {
         continue;
       }
-      return ofContract(vertx, (Class<T>) iface);
+      return withContract(vertx, (Class<T>) iface);
     }
     throw new IllegalArgumentException(actorClass.getName() + " does not implement a contractual interface");
   }
@@ -139,48 +137,14 @@ public class Messages {
    * @param <T>
    *     the type of the actor
    */
-  public static <T extends Verticle> void registerActor(final T actor) {
+  public static <T extends Verticle> void register(final T actor) {
 
-    Arrays.stream(actor.getClass().getDeclaredMethods())
-          .filter(Messages::isReceiverMethod)
+    Arrays.stream(actor.getClass().getInterfaces())
+          .filter(c -> c != Verticle.class)
+          .flatMap(c -> Arrays.stream(c.getMethods()))
+          .filter(Actors::isSuitable)
           .forEach(registerAddress(actor));
 
-  }
-
-  private static boolean isReceiverMethod(final Method m) {
-
-    if (m.getAnnotation(Address.class) != null) {
-      return true;
-    }
-    return Modifier.isPublic(m.getModifiers()) && isAllowedAsReceiver(m) && isSuitable(m);
-  }
-
-  /**
-   * Checks if the method is not declared by {@link java.lang.Object}, {@link io.vertx.core.Verticle} or
-   * {@link io.vertx.core.AbstractVerticle}
-   *
-   * @param method
-   *     the method to check
-   *
-   * @return true if method is not defined by one of the types listed above
-   */
-  private static boolean isAllowedAsReceiver(final Method method) {
-
-    final Class<?> declaringClass = method.getDeclaringClass();
-    if (declaringClass.equals(Object.class)) {
-      return false;
-    }
-
-    final Class<?> superClass = declaringClass.getSuperclass();
-    if (superClass == AbstractVerticle.class && declaresMethod(superClass, method)) {
-      return false;
-    }
-    for (Class<?> iface : declaringClass.getInterfaces()) {
-      if (iface == Verticle.class && declaresMethod(iface, method)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private static boolean declaresMethod(final Class<?> type, final Method method) {
@@ -224,7 +188,7 @@ public class Messages {
     return method -> {
       final String addr = Optional.ofNullable(method.getAnnotation(Address.class))
                                   .map(Address::value)
-                                  .orElseGet(() -> getImplicitAddress(actor, method));
+                                  .orElseGet(() -> getImplicitAddress(method));
       LOG.debug("registering {} at address {}", method, addr);
       //TODO add security
       registerCodecs(eb, method).consumer(addr, new MessageMethodHandler<>(actor, method));
@@ -251,20 +215,11 @@ public class Messages {
     return eb;
   }
 
-  static <T extends Verticle> String getImplicitAddress(final T actor, final Method method) {
 
-    for (Class iface : actor.getClass().getInterfaces()) {
-      if (declaresMethod(iface, method)) {
-        return getImplicitAddress(iface, method);
-      }
-    }
-    return actor.getClass().getName() + "." + method.getName();
-  }
-
-  static String getImplicitAddress(final Class iface, final Method method) {
+  static String getImplicitAddress(final Method method) {
 
     final StringBuilder buf = new StringBuilder(64);
-    buf.append(iface.getName());
+    buf.append(method.getDeclaringClass().getName());
     buf.append('.');
     buf.append(method.getName());
     buf.append('(');
