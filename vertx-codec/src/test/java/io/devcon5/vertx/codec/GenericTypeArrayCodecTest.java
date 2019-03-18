@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import io.devcon5.vertx.codec.GenericTypeArrayCodec;
 import io.vertx.core.buffer.Buffer;
 import org.junit.Test;
 
@@ -26,11 +25,7 @@ public class GenericTypeArrayCodecTest {
     Method method = TestContract.class.getMethod("testMethod", String.class, Integer.class, Boolean.class);
     String codecName = GenericTypeArrayCodec.codecNameFor(method.getGenericParameterTypes());
 
-    final String expected = "io.devcon5.vertx.codec.GenericTypeArrayCodecTest$TestContract"
-        + "::testMethod("
-        + "java.lang.String,"
-        + "java.lang.Integer,"
-        + "java.lang.Boolean)";
+    final String expected = "[java.lang.String, java.lang.Integer, java.lang.Boolean]";
     assertEquals(expected,codecName);
   }
 
