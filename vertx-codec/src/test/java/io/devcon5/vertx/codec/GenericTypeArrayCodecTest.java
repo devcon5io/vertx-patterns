@@ -25,7 +25,7 @@ public class GenericTypeArrayCodecTest {
     Method method = TestContract.class.getMethod("testMethod", String.class, Integer.class, Boolean.class);
     String codecName = GenericTypeArrayCodec.codecNameFor(method.getGenericParameterTypes());
 
-    final String expected = "[java.lang.String, java.lang.Integer, java.lang.Boolean]";
+    final String expected = "[java.lang.String,java.lang.Integer,java.lang.Boolean]";
     assertEquals(expected,codecName);
   }
 
