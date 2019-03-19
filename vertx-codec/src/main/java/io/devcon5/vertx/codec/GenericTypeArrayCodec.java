@@ -3,6 +3,9 @@ package io.devcon5.vertx.codec;
 import static io.devcon5.vertx.codec.GenericTypeDecoding.decode;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
@@ -16,14 +19,26 @@ import io.vertx.core.json.JsonArray;
  */
 public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
 
+  //we can't use the type array as a key as it may be a different instance each time the signature
+  //of a method is read so we use a hash of the types instead. This implies, we cannot use a weak hashmap
+  //as the references to the type-array / the hash value maybe freed too eagerly making the cache ineffective.
+  //so we use a linkedHashMap instead as an LRU cache with 1024 entries (=instances).
+  private static final ThreadLocal<Map<Integer, GenericTypeArrayCodec>> INSTANCE_CACHE = ThreadLocal.withInitial(() -> new LinkedHashMap<>(
+      Integer.getInteger("codec.instanceCacheSize", 1024),
+      0.75f,
+      true));
   private final String name;
   private final Type[] types;
 
-  //TODO add factory for flyweigth object creation
-
   public GenericTypeArrayCodec(Type[] types) {
+
     this.types = types;
     this.name = codecNameFor(types);
+  }
+
+  public static GenericTypeArrayCodec forType(Type[] type) {
+
+    return INSTANCE_CACHE.get().computeIfAbsent(Objects.hash(type), hash -> new GenericTypeArrayCodec(type));
   }
 
   /**
@@ -38,6 +53,7 @@ public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
    * natively supported by the vert.x event bus, null is returned indicating no codec is needed.
    */
   public static String codecNameFor(Type[] types) {
+
     final StringBuilder buf = new StringBuilder(128);
     buf.append('[');
     for (int i = 0, len = types.length; i < len; i++) {
@@ -95,8 +111,5 @@ public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
 
     return -1;
   }
-
-
-
 
 }
