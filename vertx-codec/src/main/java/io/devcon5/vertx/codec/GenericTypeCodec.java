@@ -13,6 +13,10 @@ import io.vertx.core.json.Json;
 /**
  * A codec for generic types. This includes raw types (such as .class) and generic types (i.e. List&lt;
  * * Pojo&gt;). This can be used to encode/decode single types such as in return types of a method or single fields.
+ * <br>
+ * The codec implements the flyweight pattern if instantiated using the {@link #forType(java.lang.reflect.Type)}
+ * method with an instance cache size that can be configured using the <code>codec.instanceCacheSize</code>
+ * jvm parameter that defaults to 1024.
  */
 public class GenericTypeCodec implements MessageCodec<Object, Object> {
 

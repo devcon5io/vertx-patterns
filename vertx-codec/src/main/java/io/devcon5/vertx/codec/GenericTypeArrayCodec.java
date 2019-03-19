@@ -15,7 +15,11 @@ import io.vertx.core.json.JsonArray;
 /**
  * A codec for arrays of generic types. This includes raw types (such as .class) and generic types (i.e. List&lt;
  * Pojo&gt;). This can be used for encoding arrays of mixed types, such as in method signatures. To encode
- * arrays of a single type (i.e. Pojo[]), use the {@link io.devcon5.vertx.codec.GenericTypeCodec}
+ * arrays of a single type (i.e. Pojo[]), use the {@link io.devcon5.vertx.codec.GenericTypeCodec}.
+ * <br>
+ * The codec implements the flyweight pattern if instantiated using the {@link #forType(java.lang.reflect.Type[])}
+ * method with an instance cache size that can be configured using the <code>codec.instanceCacheSize</code>
+ * jvm parameter that defaults to 1024.
  */
 public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
 
