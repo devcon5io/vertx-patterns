@@ -75,7 +75,10 @@ public class GenericTypeCodec implements MessageCodec<Object, Object> {
   @Override
   public Object transform(final Object o) {
 
-    return o;
+    //we can not pass the object here directly as this would allow to modify the object on the caller side
+    //while the receiver is reading it and as both could happen in different threads, this would not be threadsafe and
+    //prone to side effects
+    return GenericTypeTransformation.copy(o, this);
   }
 
   @Override
