@@ -2,6 +2,7 @@ package io.devcon5.vertx.actors;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 import io.devcon5.vertx.codec.GenericTypeCodec;
 import io.vertx.core.Future;
@@ -11,7 +12,7 @@ import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 
 /**
- *
+ * Handler to invoke methods on an actor that correspond to the address of a received event bus message.
  */
 class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>> {
 
@@ -23,20 +24,34 @@ class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>
   public MessageMethodHandler(A actor, Method m){
     this.actor = actor;
     this.method = m;
-    this.returnTypeCodec = GenericTypeCodec.codecNameFor(method.getGenericReturnType());
+    this.returnTypeCodec = getReturnTypeCodec(m.getGenericReturnType());
     this.isNative = isNativeMethodHandler(m);
+  }
+
+  private String getReturnTypeCodec(Type type) {
+
+    return GenericTypeCodec.codecNameFor(type);
   }
 
   @Override
   public void handle(final Message<T> msg) {
     invoke(actor, method, extractMethodArgs(msg)).setHandler(res -> {
-      if(res.failed()){
-        msg.fail(500, res.cause().getMessage());
-      } else {
+      if(res.succeeded()){
         Object result = res.result();
-        msg.reply(result, new DeliveryOptions().setCodecName(returnTypeCodec));
+        msg.reply(result, getDeliveryOpts());
+      } else {
+        msg.fail(500, res.cause().getMessage());
       }
     });
+  }
+
+  private DeliveryOptions getDeliveryOpts() {
+
+    final DeliveryOptions opts = new DeliveryOptions();
+    if(returnTypeCodec != null) {
+      opts.setCodecName(returnTypeCodec);
+    }
+    return opts;
   }
 
   private <A extends Verticle> Future<?> invoke(final A actor, final Method method, final Object... arg) {

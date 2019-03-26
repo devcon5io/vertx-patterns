@@ -22,73 +22,73 @@ import org.junit.Test;
 /**
  *
  */
-public class GenericTypeDecodingTest {
+public class GenericTypesTest {
 
   @Test
   public void decode_simpleTypes_boolean() {
-    assertEquals(true, GenericTypeDecoding.decode(true, boolean.class));
-    assertEquals(Boolean.TRUE, GenericTypeDecoding.decode(true, Boolean.class));
+    assertEquals(true, GenericTypes.decode(true, boolean.class));
+    assertEquals(Boolean.TRUE, GenericTypes.decode(true, Boolean.class));
   }
 
   @Test
   public void decode_simpleTypes_byte() {
 
-    assertEquals((byte) 12, GenericTypeDecoding.decode((byte)12, byte.class));
-    assertEquals(Byte.valueOf("12"), GenericTypeDecoding.decode(Byte.valueOf((byte) 12), Byte.class));
+    assertEquals((byte) 12, GenericTypes.decode((byte)12, byte.class));
+    assertEquals(Byte.valueOf("12"), GenericTypes.decode(Byte.valueOf((byte) 12), Byte.class));
   }
 
   @Test
   public void decode_simpleTypes_short() {
 
-    assertEquals((short) 512, GenericTypeDecoding.decode((short)512, short.class));
-    assertEquals(Short.valueOf("512"), GenericTypeDecoding.decode(Short.valueOf((short) 512), Short.class));
+    assertEquals((short) 512, GenericTypes.decode((short)512, short.class));
+    assertEquals(Short.valueOf("512"), GenericTypes.decode(Short.valueOf((short) 512), Short.class));
   }
 
   @Test
   public void decode_simpleTypes_int() {
 
-    assertEquals(128000, GenericTypeDecoding.decode(128000, int.class));
-    assertEquals(Integer.valueOf("128000"), GenericTypeDecoding.decodeValue(Integer.valueOf(128000), Integer.class));
+    assertEquals(128000, GenericTypes.decode(128000, int.class));
+    assertEquals(Integer.valueOf("128000"), GenericTypes.decodeValue(Integer.valueOf(128000), Integer.class));
   }
 
   @Test
   public void decode_simpleTypes_long() {
-    assertEquals(256000000L, GenericTypeDecoding.decode(256000000L, long.class));
-    assertEquals(Long.valueOf("256000000"), GenericTypeDecoding.decode(Long.valueOf(256000000L), Long.class));
+    assertEquals(256000000L, GenericTypes.decode(256000000L, long.class));
+    assertEquals(Long.valueOf("256000000"), GenericTypes.decode(Long.valueOf(256000000L), Long.class));
   }
 
   @Test
   public void decode_simpleTypes_float() {
 
-    assertEquals(256.0f, GenericTypeDecoding.decodeValue(256.0f, float.class));
-    assertEquals(Float.valueOf("256.0"), GenericTypeDecoding.decodeValue(Float.valueOf(256.0f), Float.class));
+    assertEquals(256.0f, GenericTypes.decodeValue(256.0f, float.class));
+    assertEquals(Float.valueOf("256.0"), GenericTypes.decodeValue(Float.valueOf(256.0f), Float.class));
   }
 
   @Test
   public void decode_simpleTypes_double() {
 
-    assertEquals(256.0, GenericTypeDecoding.decode(256.0, double.class));
-    assertEquals(Double.valueOf("256.0"), GenericTypeDecoding.decode(Double.valueOf(256.0), Double.class));
+    assertEquals(256.0, GenericTypes.decode(256.0, double.class));
+    assertEquals(Double.valueOf("256.0"), GenericTypes.decode(Double.valueOf(256.0), Double.class));
   }
 
   @Test
   public void decode_simpleTypes_byteArray() {
 
     assertArrayEquals(new byte[] { 1, 2, 3 },
-                      (byte[]) GenericTypeDecoding.decode(new byte[] { 1, 2, 3 }, byte[].class));
+                      (byte[]) GenericTypes.decode(new byte[] { 1, 2, 3 }, byte[].class));
   }
 
   @Test
   public void decode_simpleTypes_buffer() {
 
-    assertEquals(Buffer.buffer("123"), GenericTypeDecoding.decodeValue(Buffer.buffer("123"), Buffer.class));
+    assertEquals(Buffer.buffer("123"), GenericTypes.decodeValue(Buffer.buffer("123"), Buffer.class));
   }
 
   @Test
   public void decode_simpleTypes_JsonObject() {
 
     assertEquals(new JsonObject().put("1", "one"),
-                 GenericTypeDecoding.decode(new JsonObject().put("1", "one"), JsonObject.class));
+                 GenericTypes.decode(new JsonObject().put("1", "one"), JsonObject.class));
   }
 
 
@@ -96,7 +96,7 @@ public class GenericTypeDecodingTest {
   public void decode_simpleTypes_JsonArray() {
 
     assertEquals(new JsonArray().add("1").add("2"),
-                 GenericTypeDecoding.decode(new JsonArray().add("1").add("2"), JsonArray.class));
+                 GenericTypes.decode(new JsonArray().add("1").add("2"), JsonArray.class));
   }
 
 
@@ -105,7 +105,7 @@ public class GenericTypeDecodingTest {
 
     final String input = new JsonObject().put("name", "bob").toString();
     assertEquals(new Pojo().withName("bob"),
-                 GenericTypeDecoding.decode(input, Pojo.class));
+                 GenericTypes.decode(input, Pojo.class));
   }
 
   @Test
@@ -119,7 +119,7 @@ public class GenericTypeDecodingTest {
 
     assertEquals(Arrays.asList(new Pojo().withName("bob"),
                                new Pojo().withName("alice")),
-                 GenericTypeDecoding.decode(input, pt));
+                 GenericTypes.decode(input, pt));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class GenericTypeDecodingTest {
 
     assertEquals(new HashSet<>(Arrays.asList(new Pojo().withName("bob"),
                                              new Pojo().withName("alice"))),
-                 GenericTypeDecoding.decode(input, pt));
+                 GenericTypes.decode(input, pt));
   }
 
   @Test
@@ -148,7 +148,7 @@ public class GenericTypeDecodingTest {
 
     Map<String, Pojo> expected = Map.of("bob", new Pojo().withName("bob"),
                                             "alice", new Pojo().withName("alice"));
-    assertEquals(expected, GenericTypeDecoding.decode(input, pt));
+    assertEquals(expected, GenericTypes.decode(input, pt));
   }
 
 
@@ -156,70 +156,70 @@ public class GenericTypeDecodingTest {
   @Test
   public void decodeValue_boolean() {
 
-    assertEquals(true, GenericTypeDecoding.decodeValue(true, boolean.class));
-    assertEquals(Boolean.TRUE, GenericTypeDecoding.decodeValue(true, Boolean.class));
+    assertEquals(true, GenericTypes.decodeValue(true, boolean.class));
+    assertEquals(Boolean.TRUE, GenericTypes.decodeValue(true, Boolean.class));
   }
 
   @Test
   public void decodeValue_byte() {
 
-    assertEquals((byte) 12, GenericTypeDecoding.decodeValue((byte)12, byte.class));
-    assertEquals(Byte.valueOf("12"), GenericTypeDecoding.decodeValue(Byte.valueOf((byte) 12), Byte.class));
+    assertEquals((byte) 12, GenericTypes.decodeValue((byte)12, byte.class));
+    assertEquals(Byte.valueOf("12"), GenericTypes.decodeValue(Byte.valueOf((byte) 12), Byte.class));
   }
 
   @Test
   public void decodeValue_short() {
 
-    assertEquals((short) 512, GenericTypeDecoding.decodeValue((short)512, short.class));
-    assertEquals(Short.valueOf("512"), GenericTypeDecoding.decodeValue(Short.valueOf((short) 512), Short.class));
+    assertEquals((short) 512, GenericTypes.decodeValue((short)512, short.class));
+    assertEquals(Short.valueOf("512"), GenericTypes.decodeValue(Short.valueOf((short) 512), Short.class));
   }
 
   @Test
   public void decodeValue_int() {
 
-    assertEquals(128000, GenericTypeDecoding.decodeValue(128000, int.class));
-    assertEquals(Integer.valueOf("128000"), GenericTypeDecoding.decodeValue(Integer.valueOf(128000), Integer.class));
+    assertEquals(128000, GenericTypes.decodeValue(128000, int.class));
+    assertEquals(Integer.valueOf("128000"), GenericTypes.decodeValue(Integer.valueOf(128000), Integer.class));
   }
 
   @Test
   public void decodeValue_long() {
 
-    assertEquals(256000000L, GenericTypeDecoding.decodeValue(256000000L, long.class));
-    assertEquals(Long.valueOf("256000000"), GenericTypeDecoding.decodeValue(Long.valueOf(256000000L), Long.class));
+    assertEquals(256000000L, GenericTypes.decodeValue(256000000L, long.class));
+    assertEquals(Long.valueOf("256000000"), GenericTypes.decodeValue(Long.valueOf(256000000L), Long.class));
   }
 
   @Test
   public void decodeValue_float() {
 
-    assertEquals(256.0f, GenericTypeDecoding.decodeValue(256.0f, float.class));
-    assertEquals(Float.valueOf("256.0"), GenericTypeDecoding.decodeValue(Float.valueOf(256.0f), Float.class));
+    assertEquals(256.0f, GenericTypes.decodeValue(256.0f, float.class));
+    assertEquals(Float.valueOf("256.0"), GenericTypes.decodeValue(Float.valueOf(256.0f), Float.class));
   }
 
   @Test
   public void decodeValue_double() {
 
-    assertEquals(256.0, GenericTypeDecoding.decodeValue(256.0, double.class));
-    assertEquals(Double.valueOf("256.0"), GenericTypeDecoding.decodeValue(Double.valueOf(256.0), Double.class));
+    assertEquals(256.0, GenericTypes.decodeValue(256.0, double.class));
+    assertEquals(Double.valueOf("256.0"), GenericTypes.decodeValue(Double.valueOf(256.0), Double.class));
   }
 
   @Test
   public void decodeValue_byteArray() {
 
     assertArrayEquals(new byte[] { 1, 2, 3 },
-                      (byte[]) GenericTypeDecoding.decodeValue(new byte[] { 1, 2, 3 }, byte[].class));
+                      (byte[]) GenericTypes.decodeValue(new byte[] { 1, 2, 3 }, byte[].class));
   }
 
   @Test
   public void decodeValue_buffer() {
 
-    assertEquals(Buffer.buffer("123"), GenericTypeDecoding.decodeValue(Buffer.buffer("123"), Buffer.class));
+    assertEquals(Buffer.buffer("123"), GenericTypes.decodeValue(Buffer.buffer("123"), Buffer.class));
   }
 
   @Test
   public void decodeValue_JsonObject() {
 
     assertEquals(new JsonObject().put("1", "one"),
-                 GenericTypeDecoding.decodeValue(new JsonObject().put("1", "one"), JsonObject.class));
+                 GenericTypes.decodeValue(new JsonObject().put("1", "one"), JsonObject.class));
   }
 
 
@@ -227,14 +227,14 @@ public class GenericTypeDecodingTest {
   public void decodeValue_JsonArray() {
 
     assertEquals(new JsonArray().add("1").add("2"),
-                 GenericTypeDecoding.decodeValue(new JsonArray().add("1").add("2"), JsonArray.class));
+                 GenericTypes.decodeValue(new JsonArray().add("1").add("2"), JsonArray.class));
   }
 
 
   @Test
   public void decodeValue_pojo() {
 
-    assertEquals(new Pojo().withName("bob"),GenericTypeDecoding.decodeValue(new JsonObject().put("name", "bob"), Pojo.class));
+    assertEquals(new Pojo().withName("bob"), GenericTypes.decodeValue(new JsonObject().put("name", "bob"), Pojo.class));
   }
 
   @Test
@@ -242,7 +242,7 @@ public class GenericTypeDecodingTest {
 
     JsonArray input = new JsonArray().add("1").add("1").add("2");
 
-    List<String> list = GenericTypeDecoding.decodeList(input, String.class);
+    List<String> list = GenericTypes.decodeList(input, String.class);
 
     assertEquals("1", list.get(0));
     assertEquals("1", list.get(1));
@@ -257,7 +257,7 @@ public class GenericTypeDecodingTest {
                                      .add(new Pojo().withName("alice").toJson())
                                      .add(new Pojo().withName("bob").toJson());
 
-    List<Pojo> list = GenericTypeDecoding.decodeList(input, Pojo.class);
+    List<Pojo> list = GenericTypes.decodeList(input, Pojo.class);
 
     assertEquals(new Pojo().withName("alice"), list.get(0));
     assertEquals(new Pojo().withName("alice"), list.get(1));
@@ -270,7 +270,7 @@ public class GenericTypeDecodingTest {
 
     JsonArray input = new JsonArray().add("1").add("1").add("2");
 
-    Set<String> set = GenericTypeDecoding.decodeSet(input, String.class);
+    Set<String> set = GenericTypes.decodeSet(input, String.class);
 
     assertTrue(set.contains("1"));
     assertTrue(set.contains("2"));
@@ -284,7 +284,7 @@ public class GenericTypeDecodingTest {
                                      .add(new Pojo().withName("bob").toJson())
                                      .add(new Pojo().withName("alice").toJson());
 
-    Set<String> set = GenericTypeDecoding.decodeSet(input, Pojo.class);
+    Set<String> set = GenericTypes.decodeSet(input, Pojo.class);
 
     assertTrue(set.contains(new Pojo().withName("alice")));
     assertTrue(set.contains(new Pojo().withName("bob")));
@@ -296,7 +296,7 @@ public class GenericTypeDecodingTest {
 
     JsonObject input = new JsonObject().put("1", 1).put("2", 2);
 
-    Map<String, Integer> map = GenericTypeDecoding.decodeMap(input, String.class, Integer.class);
+    Map<String, Integer> map = GenericTypes.decodeMap(input, String.class, Integer.class);
 
     assertEquals(Integer.valueOf(1), map.get("1"));
     assertEquals(Integer.valueOf(2), map.get("2"));
@@ -310,7 +310,7 @@ public class GenericTypeDecodingTest {
     JsonObject input = new JsonObject().put("1", new Pojo().withName("bob").toJson())
                                        .put("2", new Pojo().withName("alice").toJson());
 
-    Map<String, Pojo> map = GenericTypeDecoding.decodeMap(input, String.class, Pojo.class);
+    Map<String, Pojo> map = GenericTypes.decodeMap(input, String.class, Pojo.class);
 
     assertEquals(new Pojo().withName("bob"), map.get("1"));
     assertEquals(new Pojo().withName("alice"), map.get("2"));
@@ -321,28 +321,28 @@ public class GenericTypeDecodingTest {
   @Test
   public void getRawType_class() {
 
-    assertEquals(String.class, GenericTypeDecoding.getRawType(String.class));
+    assertEquals(String.class, GenericTypes.getRawType(String.class));
   }
 
   @Test
   public void getRawType_parametrizedType() throws Exception {
 
     Type type = GenericExample.class.getMethod("getGenericList").getGenericReturnType();
-    assertEquals(List.class, GenericTypeDecoding.getRawType(type));
+    assertEquals(List.class, GenericTypes.getRawType(type));
   }
 
   @Test
   public void getRawType_wildcardType() throws Exception {
 
     Type type = GenericExample.class.getMethod("getWildcardList").getGenericReturnType();
-    assertEquals(List.class, GenericTypeDecoding.getRawType(type));
+    assertEquals(List.class, GenericTypes.getRawType(type));
   }
 
   @Test
   public void getRawType_genericArrayType() throws Exception {
 
     Type type = GenericExample.class.getMethod("getGenericListArray").getGenericReturnType();
-    assertEquals(List.class, GenericTypeDecoding.getRawType(type));
+    assertEquals(List.class, GenericTypes.getRawType(type));
   }
 
   @Test
@@ -351,116 +351,116 @@ public class GenericTypeDecodingTest {
     Type type = new Type() {
 
     };
-    assertEquals(Object.class, GenericTypeDecoding.getRawType(type));
+    assertEquals(Object.class, GenericTypes.getRawType(type));
   }
 
   @Test
   public void isSimpleType_String() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(String.class));
+    assertTrue(GenericTypes.isSimpleType(String.class));
   }
 
   @Test
   public void isSimpleType_boolean() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(boolean.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Boolean.class));
+    assertTrue(GenericTypes.isSimpleType(boolean.class));
+    assertTrue(GenericTypes.isSimpleType(Boolean.class));
   }
 
   @Test
   public void isSimpleType_byte() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(byte.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Byte.class));
+    assertTrue(GenericTypes.isSimpleType(byte.class));
+    assertTrue(GenericTypes.isSimpleType(Byte.class));
   }
 
   @Test
   public void isSimpleType_short() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(short.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Short.class));
+    assertTrue(GenericTypes.isSimpleType(short.class));
+    assertTrue(GenericTypes.isSimpleType(Short.class));
   }
 
   @Test
   public void isSimpleType_int() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(int.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Integer.class));
+    assertTrue(GenericTypes.isSimpleType(int.class));
+    assertTrue(GenericTypes.isSimpleType(Integer.class));
   }
 
   @Test
   public void isSimpleType_long() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(long.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Long.class));
+    assertTrue(GenericTypes.isSimpleType(long.class));
+    assertTrue(GenericTypes.isSimpleType(Long.class));
   }
 
   @Test
   public void isSimpleType_float() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(float.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Float.class));
+    assertTrue(GenericTypes.isSimpleType(float.class));
+    assertTrue(GenericTypes.isSimpleType(Float.class));
   }
 
   @Test
   public void isSimpleType_double() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(double.class));
-    assertTrue(GenericTypeDecoding.isSimpleType(Double.class));
+    assertTrue(GenericTypes.isSimpleType(double.class));
+    assertTrue(GenericTypes.isSimpleType(Double.class));
   }
 
   @Test
   public void isSimpleType_byteArray() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(byte[].class));
+    assertTrue(GenericTypes.isSimpleType(byte[].class));
   }
 
   @Test
   public void isSimpleType_Buffer() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(Buffer.class));
+    assertTrue(GenericTypes.isSimpleType(Buffer.class));
   }
 
   @Test
   public void isSimpleType_JsonObject() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(JsonObject.class));
+    assertTrue(GenericTypes.isSimpleType(JsonObject.class));
   }
 
   @Test
   public void isSimpleType_JsonArray() {
 
-    assertTrue(GenericTypeDecoding.isSimpleType(JsonArray.class));
+    assertTrue(GenericTypes.isSimpleType(JsonArray.class));
   }
 
   @Test
   public void isSimpleType_Object_false() {
 
-    assertFalse(GenericTypeDecoding.isSimpleType(Object.class));
+    assertFalse(GenericTypes.isSimpleType(Object.class));
   }
 
   @Test
   public void isSimpleType_List_false() {
 
-    assertFalse(GenericTypeDecoding.isSimpleType(List.class));
+    assertFalse(GenericTypes.isSimpleType(List.class));
   }
 
   @Test
   public void isSimpleType_Map_false() {
 
-    assertFalse(GenericTypeDecoding.isSimpleType(Map.class));
+    assertFalse(GenericTypes.isSimpleType(Map.class));
   }
 
   @Test
   public void isSimpleType_Set_false() {
 
-    assertFalse(GenericTypeDecoding.isSimpleType(Set.class));
+    assertFalse(GenericTypes.isSimpleType(Set.class));
   }
 
   @Test
   public void isSimpleType_Pojo_false() {
 
-    assertFalse(GenericTypeDecoding.isSimpleType(Pojo.class));
+    assertFalse(GenericTypes.isSimpleType(Pojo.class));
   }
 
   public static class GenericExample {

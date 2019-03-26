@@ -1,6 +1,8 @@
 package io.devcon5.vertx.codec;
 
-import static io.devcon5.vertx.codec.GenericTypeDecoding.decode;
+import static io.devcon5.vertx.codec.GenericTypes.decode;
+import static io.devcon5.vertx.codec.GenericTypes.unwrapFutureType;
+import static io.devcon5.vertx.codec.GenericTypes.getRawType;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -53,8 +55,12 @@ public class GenericTypeCodec implements MessageCodec<Object, Object> {
 
   public static String codecNameFor(final Type type) {
 
-    return type.getTypeName();
+    if (GenericTypes.isSimpleType(type)) {
+      return null;
+    }
+    return getRawType(type).getTypeName();
   }
+
 
   @Override
   public void encodeToWire(final Buffer buffer, final Object o) {
@@ -69,7 +75,7 @@ public class GenericTypeCodec implements MessageCodec<Object, Object> {
 
     int length = buffer.getInt(pos);
     pos += 4;
-    return decode(buffer.slice(pos, pos + length), type);
+    return decode(buffer.slice(pos, pos + length), unwrapFutureType(type));
   }
 
   @Override

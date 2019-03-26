@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -20,9 +21,9 @@ import io.vertx.core.json.JsonObject;
 /**
  *
  */
-public final class GenericTypeDecoding {
+public final class GenericTypes {
 
-  private GenericTypeDecoding() {
+  private GenericTypes() {
 
   }
 
@@ -116,13 +117,35 @@ public final class GenericTypeDecoding {
     if (type instanceof Class) {
       rawType = (Class) type;
     } else if (type instanceof ParameterizedType) {
-      rawType = (Class) ((ParameterizedType) type).getRawType();
+      ParameterizedType ptype = (ParameterizedType)type;
+      if (ptype.getRawType() == Future.class) {
+        rawType = getRawType(unwrapFutureType(ptype));
+      } else {
+        rawType = (Class) ptype.getRawType();
+      }
     } else if (type instanceof GenericArrayType) {
       rawType = getRawType(((GenericArrayType) type).getGenericComponentType());
     } else {
       rawType = Object.class;
     }
     return rawType;
+  }
+
+  public static Type unwrapFutureType(final Type type) {
+    if(!(type instanceof ParameterizedType)){
+      return type;
+    }
+    final ParameterizedType ptype = (ParameterizedType)type;
+    if(ptype.getRawType() != Future.class){
+      return type;
+    }
+
+    final Type[] typeArgs = ptype.getActualTypeArguments();
+    if (typeArgs.length > 0) {
+      return unwrapFutureType(typeArgs[0]);
+    } else {
+      return Object.class;
+    }
   }
 
   /**
@@ -143,7 +166,18 @@ public final class GenericTypeDecoding {
    */
   public static boolean isSimpleType(final Type type) {
 
-    return type instanceof Class && (((Class) type).isPrimitive()
+    return type instanceof Class && (
+        isPrimitive(type)
+        || type == byte[].class
+        || type == Buffer.class
+        || type == JsonObject.class
+        || type == JsonArray.class);
+  }
+
+  public static boolean isPrimitive(final Type type) {
+
+    return type instanceof Class && (
+        ((Class) type).isPrimitive()
         || type == String.class
         || type == Byte.class
         || type == Short.class
@@ -151,10 +185,6 @@ public final class GenericTypeDecoding {
         || type == Long.class
         || type == Float.class
         || type == Double.class
-        || type == Boolean.class
-        || type == byte[].class
-        || type == Buffer.class
-        || type == JsonObject.class
-        || type == JsonArray.class);
+        || type == Boolean.class);
   }
 }

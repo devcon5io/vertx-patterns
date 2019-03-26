@@ -1,6 +1,7 @@
 package io.devcon5.vertx.actors;
 
 import static io.devcon5.vertx.codec.GenericTypeArrayCodec.codecNameFor;
+import static io.vertx.core.logging.LoggerFactory.getLogger;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -12,19 +13,21 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.logging.Logger;
 
 /**
- *
+ * Invokation Handler for a dynamic proxy that sends method arguments as payload to a receiving actor over the event
+ * bus.
  */
 class MessageInvocationHandler implements InvocationHandler {
 
-  private final Class contract;
+  private static final Logger LOG = getLogger(MessageInvocationHandler.class);
+
   private final EventBus eb;
 
-  public MessageInvocationHandler(final Vertx vertx, Class contract) {
+  public MessageInvocationHandler(final Vertx vertx) {
 
     this.eb = vertx.eventBus();
-    this.contract = contract;
   }
 
   @Override
@@ -33,11 +36,11 @@ class MessageInvocationHandler implements InvocationHandler {
     final String ebAddress = Actors.getImplicitAddress(method);
     //TODO add support for security
 
-    final DeliveryOptions opts = new DeliveryOptions();
-
-    opts.setCodecName(codecNameFor(method.getGenericParameterTypes()));
-
+    final DeliveryOptions opts = new DeliveryOptions().setCodecName(codecNameFor(method.getGenericParameterTypes()));
     final Future result = Future.future();
+
+    LOG.debug("Sending message to {} using codec {}", ebAddress, opts.getCodecName());
+
     eb.send(ebAddress, args, opts, result.completer());
     if (getReturnType(method) == Void.class) {
       //check if really needed
@@ -64,11 +67,6 @@ class MessageInvocationHandler implements InvocationHandler {
   }
 
   private Class<?> getReturnType(final Method method) {
-
-    final ReturnType typeHint = method.getAnnotation(ReturnType.class);
-    if (typeHint != null) {
-      return typeHint.value();
-    }
 
     final Class<?> returnType = method.getReturnType();
     if (Future.class.isAssignableFrom(returnType)) {

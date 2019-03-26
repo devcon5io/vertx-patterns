@@ -52,7 +52,7 @@ public final class GenericTypeTransformation {
     for(int i = 0, len = object.length; i < len; i++){
 
       if ((copy = tryPrimitiveOrShareable(object[i])) != null ||
-          (copy = trySerializationCopy(object)) != null) {
+          (copy = trySerializationCopy(object[i])) != null) {
         result[i] = copy;
       } else {
         return null;
@@ -89,7 +89,7 @@ public final class GenericTypeTransformation {
   private static <T> T tryPrimitiveOrShareable(final T object) {
 
     Class type = object.getClass();
-    if(type.isPrimitive()) {
+    if(GenericTypes.isPrimitive(type)) {
       return object;
     }
     if (Shareable.class.isAssignableFrom(type)) {

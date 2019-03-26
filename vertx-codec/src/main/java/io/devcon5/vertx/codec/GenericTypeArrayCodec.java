@@ -1,6 +1,6 @@
 package io.devcon5.vertx.codec;
 
-import static io.devcon5.vertx.codec.GenericTypeDecoding.decode;
+import static io.devcon5.vertx.codec.GenericTypes.decode;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -42,7 +42,7 @@ public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
 
   public static GenericTypeArrayCodec forType(Type[] type) {
 
-    return INSTANCE_CACHE.get().computeIfAbsent(Objects.hash(type), hash -> new GenericTypeArrayCodec(type));
+    return INSTANCE_CACHE.get().computeIfAbsent(Objects.hash((Object[])type), hash -> new GenericTypeArrayCodec(type));
   }
 
   /**
