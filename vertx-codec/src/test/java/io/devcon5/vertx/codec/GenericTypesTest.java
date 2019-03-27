@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -461,6 +462,70 @@ public class GenericTypesTest {
   public void isSimpleType_Pojo_false() {
 
     assertFalse(GenericTypes.isSimpleType(Pojo.class));
+  }
+
+  @Test
+  public void unwrapFuture_nonGenericFuture_Object() throws Exception {
+    Type type = FutureExample.getType("objectFuture");
+
+    Type unwrapped = GenericTypes.unwrapFutureType(type);
+
+    assertEquals(Object.class, unwrapped);
+  }
+  @Test
+  public void unwrapFuture_pojoFuture_pojoType() throws Exception {
+    Type type = FutureExample.getType("pojoFuture");
+
+    Type unwrapped = GenericTypes.unwrapFutureType(type);
+
+    assertEquals(Pojo.class, unwrapped);
+  }
+
+  @Test
+  public void unwrapFuture_nestedPojoFuture_pojoType() throws Exception {
+    Type type = FutureExample.getType("nestedPojoFuture");
+
+    Type unwrapped = GenericTypes.unwrapFutureType(type);
+
+    assertEquals(Pojo.class, unwrapped);
+  }
+
+  @Test
+  public void unwrapFuture_pojoListFuture_pojoType() throws Exception {
+    Type type = FutureExample.getType("pojoListFuture");
+
+    Type unwrapped = GenericTypes.unwrapFutureType(type);
+
+    assertEquals(List.class, ((ParameterizedType)unwrapped).getRawType());
+    assertEquals(Pojo.class, ((ParameterizedType)unwrapped).getActualTypeArguments()[0]);
+  }
+
+  @Test
+  public void unwrapFuture_objectListFuture_pojoType() throws Exception {
+    Type type = FutureExample.getType("objectListFuture");
+
+    Type unwrapped = GenericTypes.unwrapFutureType(type);
+
+    assertEquals(List.class, unwrapped);
+  }
+
+
+  public interface FutureExample {
+
+    static Type getType(String methodName){
+      try {
+        return FutureExample.class.getMethod(methodName).getGenericReturnType();
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    Future objectFuture();
+    Future<Pojo> pojoFuture();
+    Future<Future<Pojo>> nestedPojoFuture();
+    Future<List<Pojo>> pojoListFuture();
+    Future<List> objectListFuture();
+
   }
 
   public static class GenericExample {

@@ -96,7 +96,7 @@ public class Actors {
   private static <T extends Verticle> Consumer<Method> registerAddress(final T actor) {
     final EventBus eb = actor.getVertx().eventBus();
     return method -> {
-      final String addr = getImplicitAddress(method);
+      final String addr = getContractMethodAddress(method);
       LOG.debug("registering {} at address {}", method, addr);
       //TODO add security
       registerCodecs(eb, method).consumer(addr, new MessageMethodHandler<>(actor, method));
@@ -108,7 +108,7 @@ public class Actors {
     if (!isSimpleType(method.getGenericReturnType())) {
       registerCodec(eb, GenericTypeCodec.forType(method.getGenericReturnType()));
     }
-    registerCodec(eb, GenericTypeArrayCodec.forType(method.getParameterTypes()));
+    registerCodec(eb, GenericTypeArrayCodec.forType(method.getGenericParameterTypes()));
     return eb;
   }
 
@@ -129,7 +129,7 @@ public class Actors {
     }
   }
 
-  static String getImplicitAddress(final Method method) {
+  static String getContractMethodAddress(final Method method) {
 
     final StringBuilder buf = new StringBuilder(64);
     buf.append(method.getDeclaringClass().getName());

@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import io.devcon5.vertx.codec.GenericTypes;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -33,7 +34,7 @@ class MessageInvocationHandler implements InvocationHandler {
   @Override
   public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
-    final String ebAddress = Actors.getImplicitAddress(method);
+    final String ebAddress = Actors.getContractMethodAddress(method);
     //TODO add support for security
 
     final DeliveryOptions opts = new DeliveryOptions().setCodecName(codecNameFor(method.getGenericParameterTypes()));
@@ -68,11 +69,11 @@ class MessageInvocationHandler implements InvocationHandler {
 
   private Class<?> getReturnType(final Method method) {
 
-    final Class<?> returnType = method.getReturnType();
-    if (Future.class.isAssignableFrom(returnType)) {
-      return findTypeArguments(method.getGenericReturnType());
+    final Type returnType = GenericTypes.unwrapFutureType(method.getGenericReturnType());
+    if(returnType instanceof ParameterizedType){
+      return (Class<?>) ((ParameterizedType)returnType).getRawType();
     }
-    return returnType;
+    return (Class<?>)returnType;
   }
 
   private <T> Class<T> findTypeArguments(Type t) {

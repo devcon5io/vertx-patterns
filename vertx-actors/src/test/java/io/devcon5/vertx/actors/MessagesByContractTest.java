@@ -2,6 +2,9 @@ package io.devcon5.vertx.actors;
 
 import static io.vertx.core.logging.LoggerFactory.getLogger;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.devcon5.vertx.actors.model.Salutation;
 import io.devcon5.vertx.actors.model.User;
 import io.vertx.core.AsyncResult;
@@ -54,6 +57,19 @@ public class MessagesByContractTest {
 
   }
 
+  @Test
+  public void testPojoListMessage(TestContext ctx) throws Exception {
+
+    Contract actor = Actors.withContract(Contract.class);
+
+    Future<List<Salutation>> salutes = actor.hello(List.of(new User().withName("Bob"), new User().withName("Alice")));
+
+    salutes.setHandler(assertResult(List.of(new Salutation().withGreeting("Hello").withUser(new User().withName("Bob")),
+                                            new Salutation().withGreeting("Hello")
+                                                            .withUser(new User().withName("Alice"))), ctx));
+
+  }
+
   private <T> Handler<AsyncResult<T>> assertResult(T expected, final TestContext ctx) {
 
     Async done = ctx.async();
@@ -75,6 +91,8 @@ public class MessagesByContractTest {
     Future<String> hello(final String bob);
 
     Future<Salutation> hello(User bob);
+
+    Future<List<Salutation>> hello(List<User> users);
 
     //this method should not work as it returns an immediate/blocking result
     Salutation helloBlocking(User bob);
@@ -98,6 +116,14 @@ public class MessagesByContractTest {
       g.setUser(bob);
       g.setGreeting("Hello");
       return Future.succeededFuture(g);
+    }
+
+    @Override
+    public Future<List<Salutation>> hello(final List<User> users) {
+
+      return Future.succeededFuture(users.stream()
+                                         .map(user -> new Salutation().withGreeting("Hello").withUser(user))
+                                         .collect(Collectors.toList()));
     }
 
     @Override

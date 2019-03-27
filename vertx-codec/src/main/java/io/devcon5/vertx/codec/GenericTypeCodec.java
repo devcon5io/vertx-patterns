@@ -2,7 +2,6 @@ package io.devcon5.vertx.codec;
 
 import static io.devcon5.vertx.codec.GenericTypes.decode;
 import static io.devcon5.vertx.codec.GenericTypes.unwrapFutureType;
-import static io.devcon5.vertx.codec.GenericTypes.getRawType;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -58,7 +57,7 @@ public class GenericTypeCodec implements MessageCodec<Object, Object> {
     if (GenericTypes.isSimpleType(type)) {
       return null;
     }
-    return getRawType(type).getTypeName();
+    return GenericTypes.unwrapFutureType(type).getTypeName();
   }
 
 

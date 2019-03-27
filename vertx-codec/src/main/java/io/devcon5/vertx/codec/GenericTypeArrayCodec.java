@@ -62,7 +62,7 @@ public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
     buf.append('[');
     for (int i = 0, len = types.length; i < len; i++) {
       final Type t = types[i];
-      buf.append(t.getTypeName());
+      buf.append(GenericTypes.unwrapFutureType(t).getTypeName());
 
       if (i < len - 1) {
         buf.append(", ");

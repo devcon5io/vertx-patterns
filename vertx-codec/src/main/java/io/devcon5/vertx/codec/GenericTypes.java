@@ -133,8 +133,12 @@ public final class GenericTypes {
 
   public static Type unwrapFutureType(final Type type) {
     if(!(type instanceof ParameterizedType)){
+      if(type == Future.class){
+        return Object.class;
+      }
       return type;
     }
+
     final ParameterizedType ptype = (ParameterizedType)type;
     if(ptype.getRawType() != Future.class){
       return type;
