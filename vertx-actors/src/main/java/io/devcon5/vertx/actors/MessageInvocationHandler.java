@@ -1,6 +1,7 @@
 package io.devcon5.vertx.actors;
 
 import static io.devcon5.vertx.codec.GenericTypeArrayCodec.codecNameFor;
+import static io.devcon5.vertx.codec.GenericTypes.unwrapFutureType;
 import static io.vertx.core.logging.LoggerFactory.getLogger;
 
 import java.lang.reflect.InvocationHandler;
@@ -8,7 +9,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import io.devcon5.vertx.codec.GenericTypes;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -43,53 +43,53 @@ class MessageInvocationHandler implements InvocationHandler {
     LOG.debug("Sending message to {} using codec {}", ebAddress, opts.getCodecName());
 
     eb.send(ebAddress, args, opts, result.completer());
-    if (getReturnType(method) == Void.class) {
-      //check if really needed
+    if (getReturnType(method) == void.class) {
       return null;
     } else if (isNonBlocking(method)) {
         if(getReturnType(method) == Message.class){
           return result;
         } else {
-          return result.map(oMsg -> ((Message)oMsg).body());
+          return result.map(this::unwrapBody);
         }
     } else {
-        //TODO throw exception only when running on eventloop thread
-        throw new UnsupportedOperationException("Blocking methods are not supported. All methods must have a future "
-                                                    + "as return type, but "
-                                                    + method
-                                                    + " returns "
-                                                    + method.getReturnType());
+        if(isEventLoopThred()){
+          throw new UnsupportedOperationException("Blocking methods are not supported to be executed on the eventloop."
+                                                      + "Non-blocking method must have a io.vertx.core.Future "
+                                                      + "as return type, but "
+                                                      + method
+                                                      + " returns "
+                                                      + method.getReturnType());
+        }
+        while(!result.isComplete()) {
+          Thread.onSpinWait();
+        }
+        if(result.succeeded()){
+          return result.map(this::unwrapBody).result();
+        } else {
+          throw result.cause();
+        }
     }
   }
 
-  private boolean isNonBlocking(final Method method) {
+  private Object unwrapBody(final Object oMsg) {
 
+    return ((Message)oMsg).body();
+  }
+
+  private boolean isEventLoopThred() {
+    return Thread.currentThread().getName().startsWith("vert.x-eventloop-thread");
+  }
+
+  private boolean isNonBlocking(final Method method) {
     return Future.class.isAssignableFrom(method.getReturnType());
   }
 
   private Class<?> getReturnType(final Method method) {
 
-    final Type returnType = GenericTypes.unwrapFutureType(method.getGenericReturnType());
+    final Type returnType = unwrapFutureType(method.getGenericReturnType());
     if(returnType instanceof ParameterizedType){
       return (Class<?>) ((ParameterizedType)returnType).getRawType();
     }
     return (Class<?>)returnType;
-  }
-
-  private <T> Class<T> findTypeArguments(Type t) {
-
-    if (t == null) {
-      return null;
-    }
-    if (t instanceof ParameterizedType) {
-      return (Class<T>) ((ParameterizedType) t).getActualTypeArguments()[0];
-    }
-    final Class<T> cls = findTypeArguments(((Class) t).getGenericSuperclass());
-    if (cls == null) {
-      return (Class) t;
-    } else {
-      return cls;
-    }
-
   }
 }

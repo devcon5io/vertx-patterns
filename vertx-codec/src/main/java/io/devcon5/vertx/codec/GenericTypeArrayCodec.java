@@ -1,6 +1,7 @@
 package io.devcon5.vertx.codec;
 
 import static io.devcon5.vertx.codec.GenericTypes.decode;
+import static io.devcon5.vertx.codec.GenericTypes.unwrapFutureType;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -62,7 +63,7 @@ public class GenericTypeArrayCodec implements MessageCodec<Object[], Object[]> {
     buf.append('[');
     for (int i = 0, len = types.length; i < len; i++) {
       final Type t = types[i];
-      buf.append(GenericTypes.unwrapFutureType(t).getTypeName());
+      buf.append(unwrapFutureType(t).getTypeName());
 
       if (i < len - 1) {
         buf.append(", ");

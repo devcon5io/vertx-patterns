@@ -53,11 +53,12 @@ public class GenericTypeCodec implements MessageCodec<Object, Object> {
   }
 
   public static String codecNameFor(final Type type) {
+    final Type effectiveType = unwrapFutureType(type);
 
-    if (GenericTypes.isSimpleType(type)) {
+    if (GenericTypes.isSimpleType(effectiveType)) {
       return null;
     }
-    return GenericTypes.unwrapFutureType(type).getTypeName();
+    return effectiveType.getTypeName();
   }
 
 

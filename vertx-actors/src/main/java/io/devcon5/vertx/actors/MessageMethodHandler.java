@@ -1,5 +1,7 @@
 package io.devcon5.vertx.actors;
 
+import static io.vertx.core.logging.LoggerFactory.getLogger;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -10,22 +12,23 @@ import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.logging.Logger;
 
 /**
  * Handler to invoke methods on an actor that correspond to the address of a received event bus message.
  */
 class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>> {
 
+  private static final Logger LOG = getLogger(MessageMethodHandler.class);
+
   private final A actor;
   private final Method method;
-  private final boolean isNative;
   private final String returnTypeCodec;
 
   public MessageMethodHandler(A actor, Method m){
     this.actor = actor;
     this.method = m;
     this.returnTypeCodec = getReturnTypeCodec(m.getGenericReturnType());
-    this.isNative = isNativeMethodHandler(m);
   }
 
   private String getReturnTypeCodec(Type type) {
@@ -35,7 +38,7 @@ class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>
 
   @Override
   public void handle(final Message<T> msg) {
-    invoke(actor, method, extractMethodArgs(msg)).setHandler(res -> {
+    invoke(actor, method, (Object[])msg.body()).setHandler(res -> {
       if(res.succeeded()){
         Object result = res.result();
         msg.reply(result, getDeliveryOpts());
@@ -69,29 +72,12 @@ class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>
     }
   }
 
-  private Object[] extractMethodArgs(final Message<T> msg) {
-
-    final Object[] args;
-    if (isNative) {
-      args = new Object[]{msg};
-    } else {
-      args = (Object[])msg.body();
-    }
-    return args;
-  }
-
   private void openMethod(final Method method) {
 
     if (!Modifier.isPublic(method.getModifiers())) {
+      LOG.warn("method {} is not public, access may be removed in the future", method);
       //Note: this option requires the target modules to be opened (open module ...)
       method.setAccessible(true);
     }
   }
-
-  static boolean isNativeMethodHandler(final Method method) {
-    final Class[] params = method.getParameterTypes();
-    return params.length == 1 && Message.class == params[0];
-  }
-
-
 }
