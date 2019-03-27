@@ -25,7 +25,7 @@ class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>
   private final Method method;
   private final String returnTypeCodec;
 
-  public MessageMethodHandler(A actor, Method m){
+  MessageMethodHandler(A actor, Method m){
     this.actor = actor;
     this.method = m;
     this.returnTypeCodec = getReturnTypeCodec(m.getGenericReturnType());

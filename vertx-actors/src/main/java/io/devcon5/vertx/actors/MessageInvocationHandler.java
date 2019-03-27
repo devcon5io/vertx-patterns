@@ -26,7 +26,7 @@ class MessageInvocationHandler implements InvocationHandler {
 
   private final EventBus eb;
 
-  public MessageInvocationHandler(final Vertx vertx) {
+  MessageInvocationHandler(final Vertx vertx) {
 
     this.eb = vertx.eventBus();
   }

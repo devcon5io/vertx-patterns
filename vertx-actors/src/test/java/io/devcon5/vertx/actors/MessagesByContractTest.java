@@ -123,7 +123,9 @@ public class MessagesByContractTest {
   @Test(expected = UnsupportedOperationException.class)
   public void nonFutureMethodOnEventLoop() throws Exception {
     Contract actor = Actors.withContract(Contract.class);
-    actor.helloBlocking(new User().withName("Bob"));
+    //making a blocking call on the current (eventloop) thread must cause an error
+    Salutation greeting = actor.helloBlocking(new User().withName("Bob"));
+    LOG.info("{}", greeting);
   }
 
   @Test
@@ -131,10 +133,14 @@ public class MessagesByContractTest {
     Contract actor = Actors.withContract(Contract.class);
 
     Async done = ctx.async();
+    //by executing in a blocking way, we ensure it's no executed on a event loop thread
     context.vertx().executeBlocking(fut -> {
+      //send a blocking call
       Salutation greeting = actor.helloBlocking(new User().withName("Bob"));
+
       fut.complete(greeting);
     }, result -> {
+
       if(result.failed()){
         LOG.error("Execution failed", result.cause());
         ctx.fail(result.cause());
