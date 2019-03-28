@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
 /**
- * Base class for contract based actors that auto-registers it's contractual interfaces upon start
+ * Base class for contract based actors that auto-registers it's contractual interfaces upon start.
  */
 public abstract class AbstractActor extends AbstractVerticle {
 

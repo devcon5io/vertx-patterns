@@ -3,11 +3,14 @@ package io.devcon5.vertx.actors;
 import static io.devcon5.vertx.codec.GenericTypes.isSimpleType;
 import static io.devcon5.vertx.codec.GenericTypes.unwrapFutureType;
 import static io.vertx.core.logging.LoggerFactory.getLogger;
+import static java.util.function.Predicate.not;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import io.devcon5.vertx.codec.GenericTypeArrayCodec;
@@ -108,9 +111,10 @@ public final class Actors {
   }
 
   /**
-   * Registers an actor {@link io.vertx.core.Verticle} and the methods of it's internfaces on the event bus so that
+   * Registers an actor {@link io.vertx.core.Verticle} and the methods of it's interfaces on the event bus so that
    * messages can be sent directly to the actor's method without having to explicitly define it's addresses and
-   * handlers. For each registered method a codec is registered on the event bus that decodes messages to match
+   * handlers. All the actor's interfaces are registered, except the {@link io.vertx.core.Verticle} interfaces. For
+   * each registered method a codec is registered on the event bus that decodes messages to match
    * the signature of the method so that native objects (Pojos) can be transmitted.
    *
    * @param actor
@@ -120,12 +124,25 @@ public final class Actors {
    */
   public static <T extends Verticle> void register(final T actor) {
 
+    final Set<Class> ignoreSet = getIgnoredInterfaces(actor);
     Arrays.stream(actor.getClass().getInterfaces())
-          .filter(c -> c != Verticle.class)
+          .filter(not(ignoreSet::contains))
           .flatMap(c -> Arrays.stream(c.getMethods()))
           .filter(Actors::isSuitable)
           .forEach(registerAddress(actor));
 
+  }
+
+  private static <T extends Verticle> Set<Class> getIgnoredInterfaces(final T actor) {
+
+    final Set<Class> result = new HashSet<>();
+    result.add(Verticle.class);
+
+    final Contracts.Ignore ignored = actor.getClass().getAnnotation(Contracts.Ignore.class);
+    if(ignored != null) {
+      result.addAll(Set.of(ignored.value()));
+    }
+    return result;
   }
 
   /**
@@ -139,8 +156,7 @@ public final class Actors {
    */
   private static boolean isSuitable(final Method method) {
 
-    //TODO add type check for arguments
-    return true;
+    return method.getAnnotation(Contracts.Ignore.class) == null;
   }
 
   private static <T extends Verticle> Consumer<Method> registerAddress(final T actor) {

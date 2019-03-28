@@ -151,6 +151,28 @@ public class MessagesByContractTest {
 
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void ingoreAnnotatedMethod() throws Exception {
+    Contract actor = Actors.withContract(Contract.class);
+    actor.ignoreMe();
+  }
+
+  @Test
+  public void methodOfIgnoredInterface(TestContext ctx) throws Exception {
+    NonContract actor = Actors.withContract(NonContract.class);
+    Future<String> actual = actor.notSupported();
+
+    Async done = ctx.async();
+    actual.setHandler(result -> {
+      if(result.failed()){
+        LOG.info("", result.cause());
+      }
+      ctx.assertTrue(result.failed());
+      done.complete();
+    });
+  }
+
+
 
   private Handler<AsyncResult<Set<User>>> assertContains(final TestContext ctx, User... expectedUsers) {
 
@@ -199,12 +221,19 @@ public class MessagesByContractTest {
     //this method should not work as it returns an immediate/blocking result
     Salutation helloBlocking(User bob);
 
+    @Contracts.Ignore
+    void ignoreMe();
+  }
+
+  public interface NonContract {
+    Future<String> notSupported();
   }
 
   /**
    * An actor that fulfills a contract
    */
-  public static class Actor extends AbstractActor implements Contract {
+  @Contracts.Ignore(NonContract.class)
+  public static class Actor extends AbstractActor implements Contract, NonContract {
 
     @Override
     public Future<String> hello(final String name) {
@@ -255,6 +284,16 @@ public class MessagesByContractTest {
       g.setUser(bob);
       g.setGreeting("Hello");
       return g;
+    }
+
+    @Override
+    public void ignoreMe() {
+
+    }
+
+    @Override
+    public Future<String> notSupported() {
+      return Future.succeededFuture("Don't call us, we call you!");
     }
   }
 }
