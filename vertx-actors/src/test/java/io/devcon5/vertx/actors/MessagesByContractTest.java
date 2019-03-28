@@ -40,7 +40,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void testSimpleMessage(TestContext ctx) throws Exception {
+  public void invoke_method_with_simpleArguments_and_ReturnType(TestContext ctx) throws Exception {
 
     Contract actor = Actors.withContract(Contract.class);
 
@@ -51,7 +51,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void testPojoMessage(TestContext ctx) throws Exception {
+  public void invoke_method_with_pojoArgument_and_ReturnType(TestContext ctx) throws Exception {
 
     Contract actor = Actors.withContract(Contract.class);
 
@@ -63,7 +63,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void testMultiPojoMessage(TestContext ctx) throws Exception {
+  public void invoke_method_with_multiplePojoArguments(TestContext ctx) throws Exception {
 
     Contract actor = Actors.withContract(Contract.class);
 
@@ -74,7 +74,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void testPojoListMessage(TestContext ctx) throws Exception {
+  public void invoke_method_with_listOfPojosArguments_and_ReturnType(TestContext ctx) throws Exception {
 
 
     Contract actor = Actors.withContract(Contract.class);
@@ -94,7 +94,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void testNoArgMessage(TestContext ctx) throws Exception {
+  public void invoke_method_with_noArgs(TestContext ctx) throws Exception {
 
 
     Contract actor = Actors.withContract(Contract.class);
@@ -106,7 +106,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void testVoidReturnTypeMessage(TestContext ctx) throws Exception {
+  public void invoke_method_with_Void_ReturnType(TestContext ctx) throws Exception {
 
     Async done = ctx.async();
     final String replyAddress = "replyAddress";
@@ -121,7 +121,7 @@ public class MessagesByContractTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void nonFutureMethodOnEventLoop() throws Exception {
+  public void invoke_method_with_nonFuture_ReturnType_OnEventLoop_expect_Exception() throws Exception {
     Contract actor = Actors.withContract(Contract.class);
     //making a blocking call on the current (eventloop) thread must cause an error
     Salutation greeting = actor.helloBlocking(new User().withName("Bob"));
@@ -129,7 +129,8 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void nonFutureMethodCallBlocking(TestContext ctx) throws Exception {
+  public void invoke_method_with_nonFuture_ReturnType_OnNonEventLoop(TestContext ctx) throws
+      Exception {
     Contract actor = Actors.withContract(Contract.class);
 
     Async done = ctx.async();
