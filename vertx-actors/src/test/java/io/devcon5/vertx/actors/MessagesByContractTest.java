@@ -159,7 +159,7 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void methodOfIgnoredInterface(TestContext ctx) throws Exception {
+  public void invoke_method_Of_ignoredInterface_expect_failure(TestContext ctx) throws Exception {
     NonContract actor = Actors.withContract(NonContract.class);
     Future<String> actual = actor.notSupported();
 
