@@ -79,7 +79,7 @@ public final class GenericTypes {
     if (isSimpleType(itemType)) {
       decodedValue = o;
     } else {
-      decodedValue = Json.mapper.convertValue(o, getRawType(itemType));
+      decodedValue = Json.mapper.convertValue(o, (Class)getRawType(itemType));
     }
     return decodedValue;
   }
