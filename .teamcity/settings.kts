@@ -1,6 +1,10 @@
-import jetbrains.buildServer.configs.kotlin.v2018_2.*
+
+import jetbrains.buildServer.configs.kotlin.v2018_2.BuildType
+import jetbrains.buildServer.configs.kotlin.v2018_2.DslContext
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.maven
+import jetbrains.buildServer.configs.kotlin.v2018_2.project
 import jetbrains.buildServer.configs.kotlin.v2018_2.triggers.vcs
+import jetbrains.buildServer.configs.kotlin.v2018_2.version
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -59,10 +63,12 @@ object Build : BuildType({
             param("sonarProjectBinaries", "target/classes")
             param("sonarServer", "7ba1e2c4-b91a-4c29-bd83-7948b20ea366")
         }
+
     }
 
     triggers {
         vcs {
+            perCheckinTriggering = true
         }
     }
 })
