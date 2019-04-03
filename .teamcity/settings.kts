@@ -36,9 +36,10 @@ project {
 }
 
 object Build : BuildType({
-    name = "Build"
+    name = "Build vertx-patterns"
 
     params {
+        //disable tool options, otherwise java 8 jvm flags would be applied to jdk 11, which do not work
         param("env.JAVA_TOOL_OPTIONS", "")
     }
 
@@ -51,6 +52,7 @@ object Build : BuildType({
             goals = "clean test"
             mavenVersion = defaultProvidedVersion()
             jdkHome = "/usr/lib/jvm/jdk-11/"
+            //enable graal compiler
             jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
         }
