@@ -57,12 +57,16 @@ object Build : BuildType({
             //enable graal compiler
             jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.urlId", "0")
-            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "*password*,*secret*")
-            param("org.jfrog.artifactory.selectedDeployableServer.targetSnapshotRepo", "libs-snapshot-local")
             param("org.jfrog.artifactory.selectedDeployableServer.deployArtifacts", "true")
+            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "*password*,*secret*")
+            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libs-release-local")
+            param("org.jfrog.artifactory.selectedDeployableServer.targetSnapshotRepo", "libs-snapshot-local")
+            param("org.jfrog.artifactory.selectedDeployableServer.urlId", "0")
+            param("org.jfrog.artifactory.selectedDeployableServer.gitReleaseBranchNamePrefix", "REL-BRANCH-")
+            param("org.jfrog.artifactory.selectedDeployableServer.enableReleaseManagement", "true")
+            param("org.jfrog.artifactory.selectedDeployableServer.vcsTagsBaseUrlOrName", "v")
+            param("org.jfrog.artifactory.selectedDeployableServer.deployIncludePatterns", "**/target/*.jar")
         }
         step {
             type = "sonar-plugin"
