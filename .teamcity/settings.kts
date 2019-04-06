@@ -38,7 +38,7 @@ project {
 object Build : BuildType({
     name = "Build vertx-patterns"
 
-    artifactRules = "target/*.jar"
+    artifactRules = "**/target/*.jar"
 
     params {
         //disable tool options, otherwise java 8 jvm flags would be applied to jdk 11, which do not work
