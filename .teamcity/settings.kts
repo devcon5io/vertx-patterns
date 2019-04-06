@@ -66,12 +66,12 @@ object Build : BuildType({
         }
         step {
             type = "sonar-plugin"
-            param("sonarProjectSources", "src/main/java")
-            param("target.jdk.home", "%env.JDK_18_x64%")
-            param("sonarProjectTests", "src/test/java")
-            param("sonarProjectModules", "vertx-actors,vertx-caching,vertx-codec,vertx-services")
             param("sonarProjectBinaries", "target/classes")
+            param("sonarProjectModules", "vertx-actors,vertx-caching,vertx-codec,vertx-services")
+            param("sonarProjectSources", "src/main/java")
+            param("sonarProjectTests", "src/test/java")
             param("sonarServer", "7ba1e2c4-b91a-4c29-bd83-7948b20ea366")
+            param("target.jdk.home", "%env.JDK_18_x64%")
         }
 
     }
