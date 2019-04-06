@@ -51,7 +51,7 @@ object Build : BuildType({
 
     steps {
         maven {
-            goals = "clean test"
+            goals = "clean install"
             mavenVersion = defaultProvidedVersion()
             jdkHome = "/usr/lib/jvm/jdk-11/"
             //enable graal compiler
