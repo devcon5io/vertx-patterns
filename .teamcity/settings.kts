@@ -66,7 +66,7 @@ object Build : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.gitReleaseBranchNamePrefix", "REL-BRANCH-")
             param("org.jfrog.artifactory.selectedDeployableServer.enableReleaseManagement", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.vcsTagsBaseUrlOrName", "v")
-            param("org.jfrog.artifactory.selectedDeployableServer.deployIncludePatterns", "**/target/*.jar")
+            param("org.jfrog.artifactory.selectedDeployableServer.deployIncludePatterns", "*.jar *.pom")
         }
         step {
             type = "sonar-plugin"
