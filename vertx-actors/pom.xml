@@ -3,7 +3,7 @@
     <parent>
         <artifactId>vertx-patterns</artifactId>
         <groupId>ch.devcon5.vertx</groupId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
         <dependency>
             <groupId>ch.devcon5.vertx</groupId>
             <artifactId>vertx-codec</artifactId>
-            <version>1.0</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
