@@ -11,6 +11,12 @@ To apply the patch, change the buildType with id = 'Build'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Build")) {
+    params {
+        add {
+            param("env.JAVA_HOME", "/usr/lib/jvm/jdk-11/")
+        }
+    }
+
     expectSteps {
         maven {
             goals = "clean install"
