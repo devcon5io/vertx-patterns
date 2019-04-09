@@ -43,6 +43,7 @@ object Build : BuildType({
     params {
         //disable tool options, otherwise java 8 jvm flags would be applied to jdk 11, which do not work
         param("env.JAVA_TOOL_OPTIONS", "")
+        param("env.JAVA_HOME", "/usr/lib/jvm/jdk-11/")
     }
 
     vcs {
@@ -51,7 +52,7 @@ object Build : BuildType({
 
     steps {
         maven {
-            goals = "clean install -T 1C"
+            goals = "clean install -T 1C -e"
             mavenVersion = defaultProvidedVersion()
             jdkHome = "/usr/lib/jvm/jdk-11/"
             //enable graal compiler
