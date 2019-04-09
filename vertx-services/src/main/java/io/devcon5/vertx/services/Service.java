@@ -27,7 +27,8 @@ public interface Service<T extends Service> {
    */
   static List<Future> mountAll(Router parentRouter, JsonObject config, AuthProvider authProvider) {
 
-    return ServiceLoader.load(Service.class).stream()
+    return ServiceLoader.load(Service.class)
+                        .stream()
                         .map(svc -> svc.get().withConfig(config).withAuth(authProvider).mount(parentRouter))
                         .collect(Collectors.toList());
   }
