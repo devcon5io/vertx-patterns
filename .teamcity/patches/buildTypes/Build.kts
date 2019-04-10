@@ -41,11 +41,7 @@ changeBuildType(RelativeId("Build")) {
         }
     }
     steps {
-        update<MavenBuildStep>(0) {
-            jdkHome = "%env.JDK_11_x64%"
-            jvmArgs = "%env.ENABLE_GRAAL_COMPILER%%"
-        }
-        insert(2) {
+        insert(0) {
             script {
                 scriptContent = """
                     ls -la /usr/java
@@ -54,6 +50,10 @@ changeBuildType(RelativeId("Build")) {
                     ls -la /usr/java/openjdk-11/jdk-11/bin
                 """.trimIndent()
             }
+        }
+        update<MavenBuildStep>(1) {
+            jdkHome = "%env.JDK_11_x64%"
+            jvmArgs = "%env.ENABLE_GRAAL_COMPILER%%"
         }
     }
 }
