@@ -12,8 +12,11 @@ accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Build")) {
     params {
-        remove {
+        expect {
             param("env.JAVA_HOME", "/usr/lib/jvm/jdk-11/")
+        }
+        update {
+            param("env.JAVA_HOME", "%env.JDK_18_x64%")
         }
     }
 
