@@ -1,7 +1,6 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.v2018_2.*
-import jetbrains.buildServer.configs.kotlin.v2018_2.BuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.MavenBuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.maven
 import jetbrains.buildServer.configs.kotlin.v2018_2.ui.*
@@ -43,9 +42,7 @@ changeBuildType(RelativeId("Build")) {
     steps {
         update<MavenBuildStep>(0) {
             jdkHome = "%env.JDK_11_x64%"
-            jvmArgs = "%env.ENABLE_GRAAL_COMPILER%%"
-        }
-        update<BuildStep>(1) {
+            jvmArgs = "%env.ENABLE_GRAAL_COMPILER%"
         }
     }
 }
