@@ -16,7 +16,7 @@ changeBuildType(RelativeId("Build")) {
             param("env.JAVA_HOME", "/usr/lib/jvm/jdk-11/")
         }
         update {
-            param("env.JAVA_HOME", "%env.JDK_18_x64%")
+            param("env.JAVA_HOME", "%env.JDK_11_x64%")
         }
     }
 
