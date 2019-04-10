@@ -50,7 +50,7 @@ changeBuildType(RelativeId("Build")) {
     }
     steps {
         update<MavenBuildStep>(0) {
-            goals = "clean install-T 1C -e"
+            goals = "clean install -T 1C"
             jdkHome = "%env.JDK_11_x64%"
             jvmArgs = "%env.ENABLE_GRAAL_COMPILER%"
         }
