@@ -1,9 +1,9 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.v2018_2.*
+import jetbrains.buildServer.configs.kotlin.v2018_2.BuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.MavenBuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.maven
-import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.v2018_2.ui.*
 
 /*
@@ -41,19 +41,11 @@ changeBuildType(RelativeId("Build")) {
         }
     }
     steps {
-        insert(0) {
-            script {
-                scriptContent = """
-                    ls -la /usr/java
-                    ls -la /usr/java/openjdk-11
-                    ls -la /usr/java/openjdk-11/jdk-11
-                    ls -la /usr/java/openjdk-11/jdk-11/bin
-                """.trimIndent()
-            }
-        }
-        update<MavenBuildStep>(1) {
+        update<MavenBuildStep>(0) {
             jdkHome = "%env.JDK_11_x64%"
             jvmArgs = "%env.ENABLE_GRAAL_COMPILER%%"
+        }
+        update<BuildStep>(1) {
         }
     }
 }
