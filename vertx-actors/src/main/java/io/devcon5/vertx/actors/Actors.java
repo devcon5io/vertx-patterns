@@ -52,18 +52,18 @@ import io.vertx.core.logging.Logger;
  * Contractual interfaces are java interfaces that define methods, but have some limitations:
  * Method arguments can be
  * <ul>
- *   <li>Simple types: <ul>
- *      <li>primitive types and their Object counterparts</li>
- *      <li>Strings</li>
- *      <li>byte arrays</li>
- *      <li>{@link io.vertx.core.json.JsonObject}</li>
- *      <li>{@link io.vertx.core.json.JsonArray}</li>
- *      <li>{@link io.vertx.core.buffer.Buffer}</li>
- *   </ul></li>
- *   <li>POJOs (Java Beans) that implement {@link io.vertx.core.shareddata.Shareable} (recommended) or are
- *   {@link java.io.Serializable}</li>
- *   <li>{@link java.util.List}, {@link java.util.Set} or {@link java.util.Map} of simple types, pojos or list,
- *   sets or maps</li>
+ * <li>Simple types: <ul>
+ * <li>primitive types and their Object counterparts</li>
+ * <li>Strings</li>
+ * <li>byte arrays</li>
+ * <li>{@link io.vertx.core.json.JsonObject}</li>
+ * <li>{@link io.vertx.core.json.JsonArray}</li>
+ * <li>{@link io.vertx.core.buffer.Buffer}</li>
+ * </ul></li>
+ * <li>POJOs (Java Beans) that implement {@link io.vertx.core.shareddata.Shareable} (recommended) or are
+ * {@link java.io.Serializable}</li>
+ * <li>{@link java.util.List}, {@link java.util.Set} or {@link java.util.Map} of simple types, pojos or list,
+ * sets or maps</li>
  * </ul>
  * Return types of the method should be a {@link io.vertx.core.Future} of a type of the list above (simple types,
  * Pojos, Lists, Sets or Maps). If the return type is not Future, the methods may not be invoked from an event-loop
@@ -76,15 +76,47 @@ public final class Actors {
   private Actors() {
 
   }
-  public static List<Future<String>> deployAll(){
+
+  /**
+   * Deploys all Actors that are found in the classpath/modulepath that have registered as service via
+   * META-INF/services/io.devcon5.vertx.actors.Actor using the current Vertx instance and it's configuration.
+   *
+   * @return a list of {@link io.vertx.core.Future} for tracking the deployment process
+   */
+  public static List<Future<String>> deployAll() {
+
     final JsonObject config = Vertx.currentContext().config();
     return deployAll(config);
   }
-  public static List<Future<String>> deployAll(JsonObject config){
+
+  /**
+   * Deploys all Actors that are found in the classpath/modulepath that have registered as service via
+   * META-INF/services/io.devcon5.vertx.actors.Actor using the current Vertx instance and the specified configuration.
+   *
+   * @param config
+   *     a configuration object that is passed as deployment config to each of the found actors
+   *
+   * @return a list of {@link io.vertx.core.Future} for tracking the deployment process
+   */
+  public static List<Future<String>> deployAll(JsonObject config) {
+
     final Vertx vertx = Vertx.currentContext().owner();
     return deployAll(vertx, config);
   }
-  public static List<Future<String>> deployAll(Vertx vertx, JsonObject config){
+
+  /**
+   * Deploys all Actors that are found in the classpath/modulepath that have registered as service via
+   * META-INF/services/io.devcon5.vertx.actors.Actor into the specified Vertx instance using the specified
+   * configuration.
+   *
+   * @param vertx
+   *     the vertx instance to deploy the actor into
+   * @param config
+   *     a configuration object that is passed as deployment config to each of the found actors
+   *
+   * @return a list of {@link io.vertx.core.Future} for tracking the deployment process
+   */
+  public static List<Future<String>> deployAll(Vertx vertx, JsonObject config) {
 
     return ServiceLoader.load(Actor.class).stream().map(actor -> {
       Future<String> result = Future.future();
@@ -161,7 +193,7 @@ public final class Actors {
     result.add(Verticle.class);
 
     final Contracts.Ignore ignored = actor.getClass().getAnnotation(Contracts.Ignore.class);
-    if(ignored != null) {
+    if (ignored != null) {
       result.addAll(Set.of(ignored.value()));
     }
     return result;
