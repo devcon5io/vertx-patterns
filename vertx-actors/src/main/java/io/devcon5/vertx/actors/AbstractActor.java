@@ -6,7 +6,7 @@ import io.vertx.core.Future;
 /**
  * Base class for contract based actors that auto-registers it's contractual interfaces upon start.
  */
-public abstract class AbstractActor extends AbstractVerticle {
+public abstract class AbstractActor extends AbstractVerticle implements Actor{
 
   @Override
   public void start(final Future<Void> startFuture) throws Exception {

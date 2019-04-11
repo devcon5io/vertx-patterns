@@ -10,7 +10,6 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 
 import io.devcon5.vertx.codec.GenericTypeArrayCodec;
 import io.devcon5.vertx.codec.GenericTypeCodec;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Verticle;
@@ -81,9 +81,10 @@ public final class Actors {
    * Deploys all Actors that are found in the classpath/modulepath that have registered as service via
    * META-INF/services/io.devcon5.vertx.actors.Actor using the current Vertx instance and it's configuration.
    *
-   * @return a list of {@link io.vertx.core.Future} for tracking the deployment process
+   * @return future handle for tracking the deployment process. The future is a composite future of futures for each
+   *  actor deployment.
    */
-  public static List<Future<String>> deployAll() {
+  public static Future<CompositeFuture> deployAll() {
 
     final JsonObject config = Vertx.currentContext().config();
     return deployAll(config);
@@ -96,9 +97,10 @@ public final class Actors {
    * @param config
    *     a configuration object that is passed as deployment config to each of the found actors
    *
-   * @return a list of {@link io.vertx.core.Future} for tracking the deployment process
+   * @return future handle for tracking the deployment process. The future is a composite future of futures for each
+   *  actor deployment.
    */
-  public static List<Future<String>> deployAll(JsonObject config) {
+  public static Future<CompositeFuture> deployAll(JsonObject config) {
 
     final Vertx vertx = Vertx.currentContext().owner();
     return deployAll(vertx, config);
@@ -114,15 +116,16 @@ public final class Actors {
    * @param config
    *     a configuration object that is passed as deployment config to each of the found actors
    *
-   * @return a list of {@link io.vertx.core.Future} for tracking the deployment process
+   * @return future handle for tracking the deployment process. The future is a composite future of futures for each
+   * actor deployment.
    */
-  public static List<Future<String>> deployAll(Vertx vertx, JsonObject config) {
+  public static Future<CompositeFuture> deployAll(Vertx vertx, JsonObject config) {
 
-    return ServiceLoader.load(Actor.class).stream().map(actor -> {
+    return CompositeFuture.all(ServiceLoader.load(Actor.class).stream().map(actor -> {
       Future<String> result = Future.future();
       vertx.deployVerticle(actor.type().getName(), new DeploymentOptions().setConfig(config), result.completer());
       return result;
-    }).collect(Collectors.toList());
+    }).collect(Collectors.toList()));
   }
 
   /**
@@ -191,6 +194,7 @@ public final class Actors {
 
     final Set<Class> result = new HashSet<>();
     result.add(Verticle.class);
+    result.add(Actor.class);
 
     final Contracts.Ignore ignored = actor.getClass().getAnnotation(Contracts.Ignore.class);
     if (ignored != null) {
