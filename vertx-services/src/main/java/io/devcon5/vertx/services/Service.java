@@ -49,6 +49,8 @@ public interface Service<T extends Service> {
    * @param provider
    *     the auth provider to use
    *
+   * @param <A> the type of the auth provider
+   *
    * @return the service instance for fluent configuration
    */
   <A extends AuthProvider> T withAuth(A provider);
