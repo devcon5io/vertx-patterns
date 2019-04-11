@@ -36,13 +36,13 @@ public class MessagesByContractTest {
   public void setUp(TestContext ctx) throws Exception {
 
     Async deployed = ctx.async();
-    context.vertx().deployVerticle(Actor.class.getName(), done -> deployed.complete());
+    context.vertx().deployVerticle(MyActor.class.getName(), done -> deployed.complete());
   }
 
   @Test
   public void invoke_method_with_simpleArguments_and_ReturnType(TestContext ctx) throws Exception {
 
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     Future<String> actual = actor.hello("Bob");
 
@@ -53,7 +53,7 @@ public class MessagesByContractTest {
   @Test
   public void invoke_method_with_pojoArgument_and_ReturnType(TestContext ctx) throws Exception {
 
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     Future<Salutation> actual = actor.hello(new User().withName("Bob"));
 
@@ -65,7 +65,7 @@ public class MessagesByContractTest {
   @Test
   public void invoke_method_with_multiplePojoArguments(TestContext ctx) throws Exception {
 
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     Future<String> actual = actor.hello(new User().withName("Bob"), new User().withName("Alice"));
 
@@ -77,7 +77,7 @@ public class MessagesByContractTest {
   public void invoke_method_with_listOfPojosArguments_and_ReturnType(TestContext ctx) throws Exception {
 
 
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     final List<User> users = List.of(new User().withName("Bob"), new User().withName("Alice"));
 
@@ -97,7 +97,7 @@ public class MessagesByContractTest {
   public void invoke_method_with_noArgs(TestContext ctx) throws Exception {
 
 
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     Future<Set<User>> users = actor.whoIsThere();
 
@@ -115,14 +115,14 @@ public class MessagesByContractTest {
       done.complete();
     });
 
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     actor.sendReplyTo(replyAddress);
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void invoke_method_with_nonFuture_ReturnType_OnEventLoop_expect_Exception() throws Exception {
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
     //making a blocking call on the current (eventloop) thread must cause an error
     Salutation greeting = actor.helloBlocking(new User().withName("Bob"));
     LOG.info("{}", greeting);
@@ -131,7 +131,7 @@ public class MessagesByContractTest {
   @Test
   public void invoke_method_with_nonFuture_ReturnType_OnNonEventLoop(TestContext ctx) throws
       Exception {
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
 
     Async done = ctx.async();
     //by executing in a blocking way, we ensure it's no executed on a event loop thread
@@ -154,13 +154,13 @@ public class MessagesByContractTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void ingoreAnnotatedMethod() throws Exception {
-    Contract actor = Actors.withContract(Contract.class);
+    Contract actor = Actor.withContract(Contract.class);
     actor.ignoreMe();
   }
 
   @Test
   public void invoke_method_Of_ignoredInterface_expect_failure(TestContext ctx) throws Exception {
-    NonContract actor = Actors.withContract(NonContract.class);
+    NonContract actor = Actor.withContract(NonContract.class);
     Future<String> actual = actor.notSupported();
 
     Async done = ctx.async();
@@ -234,7 +234,7 @@ public class MessagesByContractTest {
    * An actor that fulfills a contract
    */
   @Contracts.Ignore(NonContract.class)
-  public static class Actor extends AbstractActor implements Contract, NonContract {
+  public static class MyActor extends AbstractActor implements Contract, NonContract {
 
     @Override
     public Future<String> hello(final String name) {

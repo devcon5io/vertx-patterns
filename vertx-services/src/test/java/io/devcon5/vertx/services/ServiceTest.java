@@ -5,9 +5,12 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Route;
@@ -23,21 +26,27 @@ public class ServiceTest {
   public RunTestOnContext context = new RunTestOnContext();
 
   @Test
-  public void mountAll() throws Exception {
+  public void mountAll(TestContext ctx) throws Exception {
 
     Router parent = Router.router(context.vertx());
 
     JsonObject config = new JsonObject();
     AuthProvider authProvider = mock(AuthProvider.class);
 
-    List<Future> services = Service.mountAll(parent, config, authProvider);
+    Async done = ctx.async();
+    Future<CompositeFuture> services = Service.mountAll(parent, config, authProvider);
 
-    assertEquals(2, services.size());
+    services.setHandler(cf -> {
+      ctx.assertTrue(cf.succeeded());
+      assertEquals(2, cf.result().size());
 
-    List<Route> routes = parent.getRoutes();
-    assertEquals(2,routes.size());
-    assertEquals("/test", routes.get(0).getPath());
-    assertEquals("/test2", routes.get(1).getPath());
+      List<Route> routes = parent.getRoutes();
+      assertEquals(2,routes.size());
+      assertEquals("/test", routes.get(0).getPath());
+      assertEquals("/test2", routes.get(1).getPath());
+      done.complete();
+    });
+
   }
 
 }

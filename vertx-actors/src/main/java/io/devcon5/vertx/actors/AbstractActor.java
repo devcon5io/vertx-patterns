@@ -10,7 +10,7 @@ public abstract class AbstractActor extends AbstractVerticle implements Actor{
 
   @Override
   public void start(final Future<Void> startFuture) throws Exception {
-    Actors.register(this);
+    Actor.register(this);
     super.start(startFuture);
   }
 }

@@ -43,7 +43,7 @@ class MessageInvocationHandler implements InvocationHandler {
     final DeliveryOptions opts = new DeliveryOptions().setCodecName(codecNameFor(method.getGenericParameterTypes()));
     final Future result = Future.future();
 
-    final String ebAddress = Actors.getContractMethodAddress(method);
+    final String ebAddress = Actor.getContractMethodAddress(method);
     LOG.debug("Sending message to {} using codec {}", ebAddress, opts.getCodecName());
     eb.send(ebAddress, args, opts, result.completer());
 

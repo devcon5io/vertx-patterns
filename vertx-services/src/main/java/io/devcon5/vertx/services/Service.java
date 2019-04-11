@@ -1,9 +1,9 @@
 package io.devcon5.vertx.services;
 
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
@@ -25,12 +25,12 @@ public interface Service<T extends Service> {
    * @return
    *  a list of futures indicating the initialization state of each services.
    */
-  static List<Future> mountAll(Router parentRouter, JsonObject config, AuthProvider authProvider) {
+  static Future<CompositeFuture> mountAll(Router parentRouter, JsonObject config, AuthProvider authProvider) {
 
-    return ServiceLoader.load(Service.class)
+    return CompositeFuture.all(ServiceLoader.load(Service.class)
                         .stream()
                         .map(svc -> svc.get().withConfig(config).withAuth(authProvider).mount(parentRouter))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
   }
 
   /**

@@ -24,10 +24,10 @@ public class ActorAutoDeploymentTest {
   public void deployAll_twoRegisteredActors(TestContext ctx) throws Exception {
 
     Async async = ctx.async(2);
-    Actors.deployAll().setHandler(ready -> {
+    Actor.deployAll().setHandler(ready -> {
 
-      ContractOne c1 = Actors.withContract(ContractOne.class);
-      ContractTwo c2 = Actors.withContract(ContractTwo.class);
+      ContractOne c1 = Actor.withContract(ContractOne.class);
+      ContractTwo c2 = Actor.withContract(ContractTwo.class);
 
       c1.helloWorld().setHandler(result -> {
         ctx.assertTrue(result.succeeded());
@@ -47,9 +47,9 @@ public class ActorAutoDeploymentTest {
   public void deployAll_withConfig(TestContext ctx) throws Exception {
 
     Async async = ctx.async();
-    Actors.deployAll(new JsonObject().put("greeting", "Hello Two")).setHandler(ready -> {
+    Actor.deployAll(new JsonObject().put("greeting", "Hello Two")).setHandler(ready -> {
 
-      ContractTwo c2 = Actors.withContract(ContractTwo.class);
+      ContractTwo c2 = Actor.withContract(ContractTwo.class);
       c2.helloTwo().setHandler(result -> {
         ctx.assertTrue(result.succeeded());
         ctx.assertEquals("Hello Two", result.result());
@@ -63,10 +63,10 @@ public class ActorAutoDeploymentTest {
   public void deployAll_unregisteredActors_expectsException(TestContext ctx) throws Exception {
 
     Async async = ctx.async();
-    Actors.deployAll().setHandler(ready -> {
+    Actor.deployAll().setHandler(ready -> {
 
       //actor three is not defined in META-INF/services/io.devcon5.vertx.actors.Actor
-      ContractThree c3 = Actors.withContract(ContractThree.class);
+      ContractThree c3 = Actor.withContract(ContractThree.class);
 
       c3.helloThree().setHandler(result -> {
         ctx.assertTrue(result.failed());
