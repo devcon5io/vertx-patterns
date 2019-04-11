@@ -148,6 +148,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M3</version>
                     <configuration>
+                        <useModulePath>false</useModulePath>
                         <systemPropertyVariables>
                             <vertx.logger-delegate-factory-class-name>io.vertx.core.logging.SLF4JLogDelegateFactory</vertx.logger-delegate-factory-class-name>
                         </systemPropertyVariables>
