@@ -29,7 +29,7 @@ import io.vertx.core.logging.Logger;
 
 /**
  * Marker interface for actors.
- * If you wan't to use the {@link java.util.ServiceLoader} mechanism of the {@link io.devcon5.vertx.actors.Actors#deployAll(io.vertx.core.json.JsonObject)}
+ * If you wan't to use the {@link java.util.ServiceLoader} mechanism of the {@link io.devcon5.vertx.actors.Actor#deployAll(io.vertx.core.json.JsonObject)}
  * you have to implement this interface
  * <br>
  * Further, this interface provides static entry points for actors that want to either provide or use communication
