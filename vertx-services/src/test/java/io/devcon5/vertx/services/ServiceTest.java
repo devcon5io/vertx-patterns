@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-import io.devcon5.vertx.services.Service;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;

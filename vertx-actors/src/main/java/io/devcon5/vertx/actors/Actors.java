@@ -10,15 +10,21 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import io.devcon5.vertx.codec.GenericTypeArrayCodec;
 import io.devcon5.vertx.codec.GenericTypeCodec;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 
 /**
@@ -69,6 +75,22 @@ public final class Actors {
 
   private Actors() {
 
+  }
+  public static List<Future<String>> deployAll(){
+    final JsonObject config = Vertx.currentContext().config();
+    return deployAll(config);
+  }
+  public static List<Future<String>> deployAll(JsonObject config){
+    final Vertx vertx = Vertx.currentContext().owner();
+    return deployAll(vertx, config);
+  }
+  public static List<Future<String>> deployAll(Vertx vertx, JsonObject config){
+
+    return ServiceLoader.load(Actor.class).stream().map(actor -> {
+      Future<String> result = Future.future();
+      vertx.deployVerticle(actor.type().getName(), new DeploymentOptions().setConfig(config), result.completer());
+      return result;
+    }).collect(Collectors.toList());
   }
 
   /**
