@@ -43,6 +43,8 @@ class MessageMethodHandler<A extends Verticle, T>  implements Handler<Message<T>
         Object result = res.result();
         msg.reply(result, getDeliveryOpts());
       } else {
+        //TODO pass through exceptions
+        LOG.debug("Invocation resulted in error", res.cause());
         msg.fail(500, res.cause().getMessage());
       }
     });
