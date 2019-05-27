@@ -39,7 +39,6 @@ class MessageInvocationHandler implements InvocationHandler {
 
     checkIgnored(method);
 
-    //TODO add support for security
     final DeliveryOptions opts = new DeliveryOptions().setCodecName(codecNameFor(method.getGenericParameterTypes()));
     final Future result = Future.future();
 
