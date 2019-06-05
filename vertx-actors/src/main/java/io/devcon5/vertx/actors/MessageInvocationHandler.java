@@ -129,7 +129,9 @@ class MessageInvocationHandler implements InvocationHandler {
     final Type returnType = unwrapFutureType(method.getGenericReturnType());
     if (returnType instanceof ParameterizedType) {
       return (Class<?>) ((ParameterizedType) returnType).getRawType();
+    } else if(returnType instanceof Class){
+      return (Class<?>) returnType;
     }
-    return (Class<?>) returnType;
+    return null;
   }
 }
