@@ -82,7 +82,7 @@ class MessageInvocationHandler implements InvocationHandler {
                                                   + method.getReturnType());
     }
     while (!result.isComplete()) {
-      Thread.onSpinWait();
+      Thread.sleep(100);
     }
     if (result.succeeded()) {
       return result.map(this::unwrapBody).result();

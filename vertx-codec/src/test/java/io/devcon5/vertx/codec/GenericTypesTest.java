@@ -1,13 +1,11 @@
 package io.devcon5.vertx.codec;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +16,7 @@ import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  *
@@ -147,9 +145,11 @@ public class GenericTypesTest {
 
     ParameterizedType pt = new ParameterizedTypeImpl(Map.class, null, String.class,Pojo.class);
 
-    Map<String, Pojo> expected = Map.of("bob", new Pojo().withName("bob"),
-                                            "alice", new Pojo().withName("alice"));
-    assertEquals(expected, GenericTypes.decode(input, pt));
+    Map<String, Pojo> pojos = new HashMap<>();
+    pojos.put("bob", new Pojo().withName("bob"));
+    pojos.put("alice", new Pojo().withName("alice"));
+
+    assertEquals(pojos, GenericTypes.decode(input, pt));
   }
 
 

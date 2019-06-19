@@ -2,6 +2,8 @@ package io.devcon5.vertx.actors;
 
 import static io.vertx.core.logging.LoggerFactory.getLogger;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,26 +78,22 @@ public class MessagesByContractTest {
   @Test
   public void invoke_method_with_listOfPojosArguments_and_ReturnType(TestContext ctx) throws Exception {
 
-
     Contract actor = Actor.withContract(Contract.class);
 
-    final List<User> users = List.of(new User().withName("Bob"), new User().withName("Alice"));
+    final List<User> users = Arrays.asList(new User().withName("Bob"), new User().withName("Alice"));
 
     Future<List<Salutation>> salutes = actor.hello(users);
 
-
-
-    final List<Salutation> expected = List.of(new Salutation().withGreeting("Hello")
-                                                              .withUser(new User().withName("Bob")),
-                                              new Salutation().withGreeting("Hello")
-                                                              .withUser(new User().withName("Alice")));
+    final List<Salutation> expected = Arrays.asList(new Salutation().withGreeting("Hello")
+                                                                    .withUser(new User().withName("Bob")),
+                                                    new Salutation().withGreeting("Hello")
+                                                                    .withUser(new User().withName("Alice")));
     salutes.setHandler(assertResult(ctx, expected));
 
   }
 
   @Test
   public void invoke_method_with_noArgs(TestContext ctx) throws Exception {
-
 
     Contract actor = Actor.withContract(Contract.class);
 
@@ -122,6 +120,7 @@ public class MessagesByContractTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void invoke_method_with_nonFuture_ReturnType_OnEventLoop_expect_Exception() throws Exception {
+
     Contract actor = Actor.withContract(Contract.class);
     //making a blocking call on the current (eventloop) thread must cause an error
     Salutation greeting = actor.helloBlocking(new User().withName("Bob"));
@@ -129,8 +128,8 @@ public class MessagesByContractTest {
   }
 
   @Test
-  public void invoke_method_with_nonFuture_ReturnType_OnNonEventLoop(TestContext ctx) throws
-      Exception {
+  public void invoke_method_with_nonFuture_ReturnType_OnNonEventLoop(TestContext ctx) throws Exception {
+
     Contract actor = Actor.withContract(Contract.class);
 
     Async done = ctx.async();
@@ -142,7 +141,7 @@ public class MessagesByContractTest {
       fut.complete(greeting);
     }, result -> {
 
-      if(result.failed()){
+      if (result.failed()) {
         LOG.error("Execution failed", result.cause());
         ctx.fail(result.cause());
       }
@@ -154,26 +153,26 @@ public class MessagesByContractTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void ingoreAnnotatedMethod() throws Exception {
+
     Contract actor = Actor.withContract(Contract.class);
     actor.ignoreMe();
   }
 
   @Test
   public void invoke_method_Of_ignoredInterface_expect_failure(TestContext ctx) throws Exception {
+
     NonContract actor = Actor.withContract(NonContract.class);
     Future<String> actual = actor.notSupported();
 
     Async done = ctx.async();
     actual.setHandler(result -> {
-      if(result.failed()){
+      if (result.failed()) {
         LOG.info("", result.cause());
       }
       ctx.assertTrue(result.failed());
       done.complete();
     });
   }
-
-
 
   private Handler<AsyncResult<Set<User>>> assertContains(final TestContext ctx, User... expectedUsers) {
 
@@ -183,7 +182,7 @@ public class MessagesByContractTest {
       }
       ctx.assertTrue(reply.succeeded());
       Set<User> actualUsers = reply.result();
-      for(User expectedUser : expectedUsers){
+      for (User expectedUser : expectedUsers) {
         ctx.assertTrue(actualUsers.contains(expectedUser), expectedUser + " was not in the response");
       }
     };
@@ -227,6 +226,7 @@ public class MessagesByContractTest {
   }
 
   public interface NonContract {
+
     Future<String> notSupported();
   }
 
@@ -268,7 +268,9 @@ public class MessagesByContractTest {
     @Override
     public Future<Set<User>> whoIsThere() {
 
-      Set<User> users = Set.of(new User().withName("Bob"), new User().withName("Alice"), new User().withName("Eve"));
+      Set<User> users = new HashSet<>(Arrays.asList(new User().withName("Bob"),
+                                                    new User().withName("Alice"),
+                                                    new User().withName("Eve")));
       return Future.succeededFuture(users);
     }
 
@@ -294,6 +296,7 @@ public class MessagesByContractTest {
 
     @Override
     public Future<String> notSupported() {
+
       return Future.succeededFuture("Don't call us, we call you!");
     }
   }

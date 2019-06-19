@@ -2,6 +2,7 @@ package io.devcon5.vertx.services;
 
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -27,10 +28,9 @@ public interface Service<T extends Service> {
    */
   static Future<CompositeFuture> mountAll(Router parentRouter, JsonObject config, AuthProvider authProvider) {
 
-    return CompositeFuture.all(ServiceLoader.load(Service.class)
-                        .stream()
-                        .map(svc -> svc.get().withConfig(config).withAuth(authProvider).mount(parentRouter))
-                        .collect(Collectors.toList()));
+    return CompositeFuture.all(StreamSupport.stream(ServiceLoader.load(Service.class).spliterator(), false)
+                                                   .map(svc -> svc.withConfig(config).withAuth(authProvider).mount(parentRouter))
+                                                   .collect(Collectors.toList()));
   }
 
   /**

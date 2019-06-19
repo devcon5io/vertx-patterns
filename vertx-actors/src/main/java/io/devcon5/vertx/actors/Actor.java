@@ -3,7 +3,6 @@ package io.devcon5.vertx.actors;
 import static io.devcon5.vertx.codec.GenericTypes.isSimpleType;
 import static io.devcon5.vertx.codec.GenericTypes.unwrapFutureType;
 import static io.vertx.core.logging.LoggerFactory.getLogger;
-import static java.util.function.Predicate.not;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -14,6 +13,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import io.devcon5.vertx.codec.GenericTypeArrayCodec;
 import io.devcon5.vertx.codec.GenericTypeCodec;
@@ -122,9 +122,10 @@ public interface Actor extends Verticle {
    */
   static Future<CompositeFuture> deployAll(Vertx vertx, JsonObject config) {
 
-    return CompositeFuture.all(ServiceLoader.load(Actor.class).stream().map(actor -> {
+    return CompositeFuture.all(StreamSupport.stream(ServiceLoader.load(Actor.class).spliterator(),false)
+                                            .map(actor -> {
       Future<String> result = Future.future();
-      vertx.deployVerticle(actor.type().getName(), new DeploymentOptions().setConfig(config), result.completer());
+      vertx.deployVerticle(actor.getClass().getName(), new DeploymentOptions().setConfig(config), result.completer());
       return result;
     }).collect(Collectors.toList()));
   }
@@ -184,14 +185,14 @@ public interface Actor extends Verticle {
 
     final Set<Class> ignoreSet = getIgnoredInterfaces(actor);
     Arrays.stream(actor.getClass().getInterfaces())
-          .filter(not(ignoreSet::contains))
+          .filter(c -> !ignoreSet.contains(c))
           .flatMap(c -> Arrays.stream(c.getMethods()))
           .filter(Actor::isSuitable)
           .forEach(registerAddress(actor));
 
   }
 
-  private static <T extends Verticle> Set<Class> getIgnoredInterfaces(final T actor) {
+  public static <T extends Verticle> Set<Class> getIgnoredInterfaces(final T actor) {
 
     final Set<Class> result = new HashSet<>();
     result.add(Verticle.class);
@@ -199,7 +200,7 @@ public interface Actor extends Verticle {
 
     final Contracts.Ignore ignored = actor.getClass().getAnnotation(Contracts.Ignore.class);
     if (ignored != null) {
-      result.addAll(Set.of(ignored.value()));
+      result.addAll(Arrays.asList(ignored.value()));
     }
     return result;
   }
@@ -213,12 +214,12 @@ public interface Actor extends Verticle {
    * @return if the method returns void and has a single {@link io.vertx.core.eventbus.Message} parameter
    * or if the message has at least one parameter
    */
-  private static boolean isSuitable(final Method method) {
+  public static boolean isSuitable(final Method method) {
 
     return method.getAnnotation(Contracts.Ignore.class) == null;
   }
 
-  private static <T extends Verticle> Consumer<Method> registerAddress(final T actor) {
+  public static <T extends Verticle> Consumer<Method> registerAddress(final T actor) {
     final Logger LOG = getLogger(Actor.class);
     final EventBus eb = actor.getVertx().eventBus();
     return method -> {
@@ -229,7 +230,7 @@ public interface Actor extends Verticle {
     };
   }
 
-  private static EventBus registerCodecs(final EventBus eb, final Method method) {
+  public static EventBus registerCodecs(final EventBus eb, final Method method) {
 
     //register the codec for the return type
     final Type returnType = unwrapFutureType(method.getGenericReturnType());
@@ -241,7 +242,7 @@ public interface Actor extends Verticle {
     return eb;
   }
 
-  private static void registerCodec(final EventBus eb, final MessageCodec codec) {
+  public static void registerCodec(final EventBus eb, final MessageCodec codec) {
 
     if (codec == null || codec.name() == null) {
       //the codec might be null, i.e. for simple types / natively supported types

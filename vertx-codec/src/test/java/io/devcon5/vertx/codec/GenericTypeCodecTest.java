@@ -3,6 +3,9 @@ package io.devcon5.vertx.codec;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -105,7 +108,7 @@ public class GenericTypeCodecTest {
   public void encodeToWire_and_decodeFromWire_ListOfPojos() throws Exception{
 
     GenericTypeCodec codec = new GenericTypeCodec(ComplexTypes.LIST_OF_POJO_TYPE);
-    List<Pojo> pojos = List.of(new Pojo().withName("bob"), new Pojo().withName("alice"));
+    List<Pojo> pojos = Arrays.asList(new Pojo().withName("bob"), new Pojo().withName("alice"));
 
 
     List<Pojo> actual = transcode(codec, pojos);
@@ -117,7 +120,7 @@ public class GenericTypeCodecTest {
   public void encodeToWire_and_decodeFromWire_SetOfPojos() throws Exception{
 
     GenericTypeCodec codec = new GenericTypeCodec(ComplexTypes.SET_OF_POJO_TYPE);
-    Set<Pojo> pojos = Set.of(new Pojo().withName("bob"), new Pojo().withName("alice"));
+    Set<Pojo> pojos = new HashSet<>(Arrays.asList(new Pojo().withName("bob"), new Pojo().withName("alice")));
 
     Set<Pojo> actual = transcode(codec, pojos);
 
@@ -128,8 +131,9 @@ public class GenericTypeCodecTest {
   public void encodeToWire_and_decodeFromWire_MapOfPojos() throws Exception{
 
     GenericTypeCodec codec = new GenericTypeCodec(ComplexTypes.MAP_OF_POJO_TYPE);
-    Map<String, Pojo> pojos = Map.of("bob", new Pojo().withName("bob"),
-                                     "alice", new Pojo().withName("alice"));
+    Map<String, Pojo> pojos = new HashMap<>();
+    pojos.put("bob", new Pojo().withName("bob"));
+    pojos.put("alice", new Pojo().withName("alice"));
 
     Map<String, Pojo> actual = transcode(codec, pojos);
 
