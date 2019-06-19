@@ -29,7 +29,7 @@ public final class Contracts {
      * class implements multiple interfaces, but only some should be exposed as contract while other - those in this
      * list - should not.
      * @return
-     *  a list of interface classes that should not be registered as contractual interfaces
+     *  a Arrays.asList interface classes that should not be registered as contractual interfaces
      */
     Class[] value() default {};
   }

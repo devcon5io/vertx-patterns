@@ -31,7 +31,8 @@ public class GenericTypeArrayCodecTest {
   @Test
   public void codecNameFor_genericCollectionsArray() throws NoSuchMethodException {
 
-    String codecName = GenericTypeArrayCodec.codecNameFor(new Type[]{ ComplexTypes.LIST_OF_POJO_TYPE, ComplexTypes.MAP_OF_POJO_TYPE,
+    String codecName = GenericTypeArrayCodec.codecNameFor(new Type[]{ ComplexTypes.LIST_OF_POJO_TYPE,
+                                                                      ComplexTypes.MAP_OF_POJO_TYPE,
                                                                       ComplexTypes.SET_OF_POJO_TYPE});
     final String expected = "[java.util.List<io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>, "
         + "java.util.Map<java.lang.String, io.devcon5.vertx.codec.GenericTypeCodecTest$Pojo>, "

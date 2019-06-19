@@ -24,7 +24,7 @@ public interface Service<T extends Service> {
    * @param authProvider
    *  the authentication provider which services may use to authenticate their users
    * @return
-   *  a list of futures indicating the initialization state of each services.
+   *  a Arrays.asList futures indicating the initialization state of each services.
    */
   static Future<CompositeFuture> mountAll(Router parentRouter, JsonObject config, AuthProvider authProvider) {
 
